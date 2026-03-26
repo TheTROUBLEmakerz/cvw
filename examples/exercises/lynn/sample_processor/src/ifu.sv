@@ -23,11 +23,12 @@ module ifu(
         $display("[TB] ENTRY_ADDR = 0x%h", entry_addr);
     end
 
-    always_ff @(posedge clk or posedge reset) begin
+    always_ff @(posedge clk) begin
     if (reset)  PC <= entry_addr;
     else        PC <= PCNext;
     end
 
     adder pcadd4(PC, 32'd4, PCPlus4);
-    mux2 #(32) pcmux(PCPlus4, IEUAdr, PCSrc, PCNext);
+
+    mux2 #(32) pcmux(PCPlus4, {IEUAdr[31:1], 1'b0}, PCSrc, PCNext);
 endmodule
