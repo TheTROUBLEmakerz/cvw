@@ -34,8 +34,20 @@ module ieu(
     `endif
     );
 
+    // register file logic
+    regfile rf(.reset, .clk, .WE3(RegWrite), .A1(Instr[19:15]), .A2(Instr[24:20]),
+        .A3(Instr[11:7]), .WD3(Result), .RD1(R1), .RD2(R2));
+
+    // immediate extend unit
+    extend ext(.Instr(Instr[31:7]), .ImmSrc, .ImmExt);
+
+    decodereg decodereg(.clk, .reset, .FlushE, .noStallE, .RegWrite, .MemRW, .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1, .Rd2, .ImmExt, .Funct3, .RdD,
+                        .RegWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .RdE);
 
     datapath dp(.clk, .reset, .Funct3(Instr[14:12]),
         .ALUResultSrc, .ResultSrc, .ALUSrc, .RegWrite, .ImmSrc, .ALUControl, .Eq, .Lt, .IsMul,
         .PC, .PCPlus4, .Instr, .IEUAdr, .WriteData, .ReadData, .CSRout);
+
+    executereg executereg(.clk, .reset, .FlushM, .noStallM, .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE,
+                        .RegWriteM, .ResultSrcM, .MemRWM, .IEUResultM, .IEUAdrM, .FSrcBM, .Funct3M, .RdM);
 endmodule

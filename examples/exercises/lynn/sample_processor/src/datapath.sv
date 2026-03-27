@@ -25,11 +25,6 @@ module datapath(
     logic [31:0] ALUResult, IEUResult, Result, ImmLoad;
     logic [31:0] MulResult, CalcOut;
     logic [31:0] ExecResult;  // ALUResult with optional MUL override
-    // register file logic
-    regfile rf(.reset, .clk, .WE3(RegWrite), .A1(Instr[19:15]), .A2(Instr[24:20]),
-        .A3(Instr[11:7]), .WD3(Result), .RD1(R1), .RD2(R2));
-
-    extend ext(.Instr(Instr[31:7]), .ImmSrc, .ImmExt);
 
     // ALU logic
     cmp cmp(.R1, .R2, .unsignedCmp(Funct3[1]), .Eq, .Lt);
