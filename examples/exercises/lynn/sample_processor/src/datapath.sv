@@ -3,46 +3,55 @@
 // David_Harris@hmc.edu 2020
 
 module datapath(
-        input   logic           clk, reset,
-        input   logic [2:0]     Funct3,
-        input   logic           ALUResultSrc,
-        input   logic [1:0]     ResultSrc,
-        input   logic [1:0]     ALUSrc,
-        input   logic           RegWrite,
-        input   logic [2:0]     ImmSrc,
-        input   logic [1:0]     ALUControl,
-        output  logic           Eq, Lt,
-        input   logic [31:0]    PC, PCPlus4,
-        input   logic [31:0]    Instr,
-        output  logic [31:0]    IEUAdr, WriteData,
-        input   logic [31:0]    ReadData,
+        input   logic           clk, reset,//
+        input   logic [31:0]    Rd1E, Rd2E, ImmExtE,//
+        input   logic [2:0]     Funct3E,//
+        input   logic           Funct7b5E, //
+        input   logic [1:0]     ALUControlE, //
+        output  logic           Eq, Lt, //
+        input   logic [31:0]    PCE, //
+        output  logic [31:0]    IEUAdrE, FSrcBE, IEUResultE,//
         input   logic [31:0]    CSRout,
-        input   logic           IsMul
+        input   logic           IsMul,
+        input   logic           ALUResultSrcE, JumpE, ALUControlE,//
+        input   logic  [1:0]    ALUSrcE, //
+
+        input   logic  [31:0]   IEUResultM, ResultW, //
+        input   logic           ForwardAE, ForwardBE //
     );
 
-    logic [31:0] ImmExt;
-    logic [31:0] R1, R2, SrcA, SrcB;
-    logic [31:0] ALUResult, IEUResult, Result, ImmLoad;
-    logic [31:0] MulResult, CalcOut;
+    logic [31:0] FSrcAE, SrcAE, SrcBE, PCLinkE, ALUResultE, AltResultE;
+    logic [31:0] MulResult, CalcOut; //for mult unit
     logic [31:0] ExecResult;  // ALUResult with optional MUL override
 
-    // ALU logic
-    cmp cmp(.R1, .R2, .unsignedCmp(Funct3[1]), .Eq, .Lt);
+    mux3 #(32) top3mux(Rd1E, ResultW, IEUResultM, ForwardAE, FSrcAE);
+    mux3 #(32) bot3mux(Rd2E, ResultW, IEUResultM, ForwardBE, FSrcBE);
+    cmp cmp(.R1(FSrcAE), .R2(FSrcBE), .unsignedCmp(Funct3[1]), .Eq, .Lt);
 
-    mux2 #(32) srcamux(R1, PC, ALUSrc[1], SrcA);
-    mux2 #(32) srcbmux(R2, ImmExt, ALUSrc[0], SrcB);
+    mux2 #(32) srcamux(FSrcAE, PCE, ALUSrcE[1], SrcAE);
+    mux2 #(32) srcbmux(FSrcBE, ImmExtE, ALUSrcE[0], SrcBE);
 
-    alu alu(.SrcA, .SrcB, .ALUControl, .Op(Instr[6:0]), .Funct3, .ALUResult, .IEUAdr, .Funct7(Instr[31:25]));
-    multiplier multiplier(.R1, .R2, .funct3(Funct3), .MulResult);
+    alu alu(.SrcA(SrcAE), .SrcB(SrcBE), .ALUControl(ALUControlE), .Funct3(Funct3E), .ALUResult(ALUResultE), .IEUAdr(IEUAdrE), .Funct7b5E);
+    multiplier multiplier(.R1, .R2, .funct3(Funct3), .MulResult); // need to look later really wrong
 
     // mux2 #(32) ieuresultmux(ALUResult, PCPlus4, ALUResultSrc, IEUResult);
     // mux4 #(32) resultmux(CalcOut, ImmLoad, ImmExt, CSRout, ResultSrc, Result);
 
-    mux2 #(32) mulmux(ALUResult, MulResult, IsMul, ExecResult);
-    mux2 #(32) ieuresultmux(ExecResult, PCPlus4, ALUResultSrc, CalcOut);
-    mux4 #(32) resultmux(CalcOut, ImmLoad, ImmExt, CSRout, ResultSrc, Result);
-    ext2 ext2(Funct3, IEUAdr[2:0], ReadData, ImmLoad);
+    adder pcadd4E(PCE, 32'd4, PCLinkE);
+    mux2 #(32) altmux(ImmExtE, PCLinkE, JumpE, AltResultE);
+    mux2 #(32) ieuresultmux(ALUResultE, AltResultE, ALUResultSrcE, IEUResultE);
+
+
+
+/////////////////////////////////
+    mux2 #(32) mulmux(ALUResult, MulResult, IsMul, ExecResult); // look later
+
+
+    // move this part to ieu
+    // mux4 #(32) resultmux(CalcOut, ImmLoad, ImmExt, CSRout, ResultSrc, Result);
+    // ext2 ext2(Funct3, IEUAdr[2:0], ReadData, ImmLoad); // this is for load/store
     //assign WriteData = R2;
+    // load store unit stuff need to be fixed
     always_comb
     begin
         case(Funct3[1:0])

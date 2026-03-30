@@ -2,7 +2,7 @@ module alu(
     input  logic [31:0] SrcA, SrcB,
     input  logic [1:0]  ALUControl,
     input  logic [2:0]  Funct3,
-    input  logic [6:0]  Funct7, Op,
+    input  logic        Funct7b5E,
     output logic [31:0] ALUResult, IEUAdr
 );
 
@@ -42,7 +42,7 @@ module alu(
             3'b001: ALUResult = SrcA << SrcB[4:0];
             3'b011: ALUResult = {31'b0, (SrcA < SrcB)};  // SLTU (unsigned)
             3'b101: begin
-                if (Funct7[5]) begin
+                if (Funct7b5E) begin
                     // SRA: manual sign-fill (no reliance on >>>)
                     if (SrcB[4:0] == 0)
                         ALUResult = SrcA;

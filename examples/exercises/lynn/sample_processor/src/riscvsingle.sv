@@ -23,11 +23,11 @@ module riscvsingle (
     logic [31:0] PCPlus4, CSRout;
     logic PCSrc;
     logic IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc;
-    logic [31:0] PCF, PCD;
+    logic [31:0] PCD;
     logic [31:0] InstrF, InstrD;
 
-    ifu ifu(.clk, .reset, .PCSrc, .IEUAdr, .PC, .PCPlus4);
-    fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF, .InstrF, .PCD, .InstrD);
+    ifu ifu(.clk, .reset, .PCSrcE, .IEUAdrE, .PC, .StallF, .InstrF);
+    fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF(PC), .InstrF, .PCD, .InstrD);
     ieu ieu(.clk, .reset, .Instr, .PC, .PCPlus4, .PCSrc, .WriteByteEn,
             .IEUAdr, .WriteData, .ReadData, .MemEn, .CSRout, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc
         );
