@@ -19,6 +19,7 @@ module controller(
         output  logic [2:0]   ImmSrc,
         output  logic [1:0]   ALUControl,
         output  logic         MemEn,
+        output  logic         Jump,
         output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
         output  logic         IsMul
     `ifdef DEBUG
