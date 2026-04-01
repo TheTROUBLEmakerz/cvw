@@ -1,13 +1,14 @@
 //hazard unit for pipelined processor
 
 module hazard(
-        input  logic [4:0]  Rs1D, Rs2D,
-        input  logic [4:0]  Rs1E, Rs2E, RdE,
+        input  logic [4:0]  Rs1D, Rs2D,Rs1E, Rs2E,
+        input  logic [4:0]  RdE,
         input  logic        PCSrcE, ResultSrcE0,
         input  logic [4:0]  RdM, RdW,
         input  logic        RegWriteM, RegWriteW,
-        output logic        StallF, StallD, StallE,
+        output logic        StallF, StallD,
         output logic        FlushD, FlushE,
+        output logic        StallE, StallM, FlushM, StallW, FlushW, //these are all hardwired to 0
         output logic [1:0]  ForwardAE, ForwardBE
     );
     logic lwStall;
@@ -32,9 +33,12 @@ module hazard(
     assign StallF = lwStall;
     assign StallD = lwStall;
     assign StallE = 0;
+    assign StallM = 0;
+    assign FlushM = 0;
+    assign StallW = 0;
+    assign FlushW = 0;
 
     assign FlushD = PCSrcE; //
     assign FlushE = lwStall | PCSrcE;
 
-    // what to do with StallW and FlushW and E
 endmodule

@@ -16,7 +16,8 @@ module ieu(
         output  logic [3:0]     WriteByteEn,
         input   logic           RegWriteW,
         input   logic [1:0]     ResultSrcW,
-        input   logic [31:0]    IEUResultM, IEUResultW, ReadDataW, RdW,
+        input   logic [31:0]    IEUResultM, IEUResultW, ReadDataW,
+        input   logic [4:0]     RdW,
         output  logic [31:0]    IEUAdrE, WriteData, IEUResultE,
         input   logic [31:0]    ReadData, MDUW,
         output  logic           MemEn, FSrcBE,
@@ -27,7 +28,7 @@ module ieu(
 
 
     logic RegWrite, Jump, Eq, ALUResultSrc, Lt;
-    logic  [31:0] ImmExtD, ImmExtE;
+    logic  [31:0] ImmExtD, ImmExtE, ResultW;
     logic  [1:0]  ResultSrc;
     logic  [1:0]  ALUSrc;
     logic  [2:0]  ImmSrcD;
@@ -36,11 +37,11 @@ module ieu(
     logic         IsMul, Funct7b5E;
     logic  [31:0] PCE;
 
-    logic         RegWriteE, MemRWE, ALUResultSrcE, JumpE, ALUControlE;
-    logic  [1:0]  ResultSrcE, ALUSrcE;
+    logic         RegWriteE, MemRWE, ALUResultSrcE, JumpE;
+    logic  [1:0]  ResultSrcE, ALUSrcE,ALUControlE;
 
     controller c(.IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
-        .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc(PCSrcE), .Funct7(InstrD[31:25]), .IsMul,
+        .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc(PCSrcE), .Funct7(InstrD[31:25]), .IsMul, .Jump,
         .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc
     `ifdef DEBUG
         , .insn_debug(Instr)
