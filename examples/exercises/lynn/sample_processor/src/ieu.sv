@@ -20,7 +20,9 @@ module ieu(
         output  logic [31:0]    IEUAdrE, WriteData, IEUResultE,
         input   logic [31:0]    ReadData, MDUW,
         output  logic           MemEn, FSrcBE,
-        output  logic           IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc
+        output  logic           IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
+        output  logic [31:0]    Rs1D, Rs1E, Rs2D, Rs2E,
+        output  logic [4:0]     RdE
     );
 
 
@@ -32,7 +34,6 @@ module ieu(
     logic  [2:0]  Funct3E;
     logic  [1:0]  ALUControl;
     logic         IsMul, Funct7b5E;
-    logic  [31:0] R1, R2, Rd1E, Rd2E, RdE;
     logic  [31:0] PCE;
 
     logic         RegWriteE, MemRWE, ALUResultSrcE, JumpE, ALUControlE;
@@ -48,16 +49,16 @@ module ieu(
 
     // register file logic
     regfile rf(.reset, .clk, .WE3(RegWriteW), .A1(InstrD[19:15]), .A2(InstrD[24:20]),
-        .A3(RdW), .WD3(ResultW), .RD1(R1), .RD2(R2));
+        .A3(RdW), .WD3(ResultW), .RD1(Rs1D), .RD2(Rs2D));
 
     // immediate extend unit
     extend ext(.Instr(InstrD[31:7]), .ImmSrc(ImmSrcD), .ImmExt(ImmExtD));
 
 
-    decodereg decodereg(.clk, .reset, .FlushE, .noStallE(~StallE), .RegWrite, .MemRW(MemEn), .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1(R1), .Rd2(R2), .ImmExtD, .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .RdD(InstrD[11:7]),
-                        .RegWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .RdE);
+    decodereg decodereg(.clk, .reset, .FlushE, .noStallE(~StallE), .RegWrite, .MemRW(MemEn), .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1(Rs1D), .Rd2(Rs2D), .ImmExtD, .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .RdD(InstrD[11:7]),
+                        .RegWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E(Rs1E), .Rd2E(Rs2E), .ImmExtE, .Funct3E, .Funct7b5E, .RdE);
 
-    datapath dp(.clk, .reset, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .ALUControlE, .Eq, .Lt, .PCE, .IEUAdrE, .FSrcBE, .IEUResultE, .WriteData, .CSRout, .IsMul, .ALUResultSrcE, .JumpE, .ALUSrcE, .IEUResultM, .ResultW, .ForwardAE, .ForwardBE);
+    datapath dp(.clk, .reset, .Rd1E(Rs1E), .Rd2E(Rs2E), .ImmExtE, .Funct3E, .Funct7b5E, .ALUControlE, .Eq, .Lt, .PCE, .IEUAdrE, .FSrcBE, .IEUResultE, .WriteData, .CSRout, .IsMul, .ALUResultSrcE, .JumpE, .ALUSrcE, .IEUResultM, .ResultW, .ForwardAE, .ForwardBE);
     mux2 #(32) resultmux(IEUResultW, ReadDataW, ResultSrcW[0], ResultW);
 
 endmodule

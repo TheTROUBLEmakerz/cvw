@@ -15,7 +15,7 @@ module decodereg(
         output logic [4:0]  RdE
     );
 
-    logic QRegWrite, QMemRW, QALUResultSrc, QJump, QALUControl;
+    logic QRegWrite, QMemRW, QALUResultSrc, QJump, QALUControl, QFunct7;
     logic [1:0] QResultSrc, QALUSrc;
     logic [31:0] QPC, QRd1, QRd2, QImmExt;
     logic [2:0] QFunct3;
