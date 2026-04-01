@@ -10,10 +10,10 @@ module datapath(
         input   logic [1:0]     ALUControlE, //
         output  logic           Eq, Lt, //
         input   logic [31:0]    PCE, //
-        output  logic [31:0]    IEUAdrE, FSrcBE, IEUResultE,//
+        output  logic [31:0]    IEUAdrE, FSrcBE, IEUResultE, WriteData,//
         input   logic [31:0]    CSRout,
         input   logic           IsMul,
-        input   logic           ALUResultSrcE, JumpE, ALUControlE,//
+        input   logic           ALUResultSrcE, JumpE,//
         input   logic  [1:0]    ALUSrcE, //
 
         input   logic  [31:0]   IEUResultM, ResultW, //
@@ -26,13 +26,13 @@ module datapath(
 
     mux3 #(32) top3mux(Rd1E, ResultW, IEUResultM, ForwardAE, FSrcAE);
     mux3 #(32) bot3mux(Rd2E, ResultW, IEUResultM, ForwardBE, FSrcBE);
-    cmp cmp(.R1(FSrcAE), .R2(FSrcBE), .unsignedCmp(Funct3[1]), .Eq, .Lt);
+    cmp cmp(.R1(FSrcAE), .R2(FSrcBE), .unsignedCmp(Funct3E[1]), .Eq, .Lt);
 
     mux2 #(32) srcamux(FSrcAE, PCE, ALUSrcE[1], SrcAE);
     mux2 #(32) srcbmux(FSrcBE, ImmExtE, ALUSrcE[0], SrcBE);
 
     alu alu(.SrcA(SrcAE), .SrcB(SrcBE), .ALUControl(ALUControlE), .Funct3(Funct3E), .ALUResult(ALUResultE), .IEUAdr(IEUAdrE), .Funct7b5E);
-    multiplier multiplier(.R1, .R2, .funct3(Funct3), .MulResult); // need to look later really wrong
+    // multiplier multiplier(.R1(FSrcAE), .R2(FSrcBE), .funct3(Funct3E), .MulResult); // need to look later really wrong
 
     // mux2 #(32) ieuresultmux(ALUResult, PCPlus4, ALUResultSrc, IEUResult);
     // mux4 #(32) resultmux(CalcOut, ImmLoad, ImmExt, CSRout, ResultSrc, Result);
@@ -50,14 +50,14 @@ module datapath(
     // move this part to ieu
     // mux4 #(32) resultmux(CalcOut, ImmLoad, ImmExt, CSRout, ResultSrc, Result);
     // ext2 ext2(Funct3, IEUAdr[2:0], ReadData, ImmLoad); // this is for load/store
-    //assign WriteData = R2;
+    // assign WriteData = FSrcBE;
     // load store unit stuff need to be fixed
     always_comb
     begin
-        case(Funct3[1:0])
-            2'b10: WriteData = R2;
-            2'b01: WriteData = {R2[15:0], R2[15:0]};
-            2'b00: WriteData = {4{R2[7:0]}};
+        case(Funct3E[1:0])
+            2'b10: WriteData = FSrcBE;
+            2'b01: WriteData = {FSrcBE[15:0], FSrcBE[15:0]};
+            2'b00: WriteData = {4{FSrcBE[7:0]}};
             default: WriteData = 32'b0;
         endcase
     end

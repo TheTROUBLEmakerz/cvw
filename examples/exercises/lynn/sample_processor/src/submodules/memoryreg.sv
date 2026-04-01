@@ -18,16 +18,16 @@ module memoryreg(
     mux2 #(1) RegWritemux(RegWriteW, (RegWriteM & ~flush), noStall, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteW));
 
-    mux2 #(2) ResultSrcmux(ResultSrcW, (ResultSrcM & 2{~flush}), noStall, QResultSrc);
+    mux2 #(2) ResultSrcmux(ResultSrcW, (ResultSrcM & {2{~flush}}), noStall, QResultSrc);
     flopr #(2) ResultSrcreg(.clk, .reset, .D(QResultSrc), .Q(ResultSrcW));
 
-    mux2 #(32) MDUmux(MDUW, (MDU & 32{~flush}), noStall, QMDU);
+    mux2 #(32) MDUmux(MDUW, (MDU & {32{~flush}}), noStall, QMDU);
     flopr #(32) MDUreg(.clk, .reset, .D(QMDU), .Q(MDUW));
 
-    mux2 #(32) IEUResultmux(IEUResultW, (IEUResultM & 32{~flush}), noStall, QIEUResult);
+    mux2 #(32) IEUResultmux(IEUResultW, (IEUResultM & {32{~flush}}), noStall, QIEUResult);
     flopr #(32) IEUResultreg(.clk, .reset, .D(QIEUResult), .Q(IEUResultW));
 
-    mux2 #(32) ReadDatamux(ReadDataW, (ReadDataM & 32{~flush}), noStall, QReadData);
+    mux2 #(32) ReadDatamux(ReadDataW, (ReadDataM & {32{~flush}}), noStall, QReadData);
     flopr #(32) ReadDatareg(.clk, .reset, .D(QReadData), .Q(ReadDataW));
 
 endmodule

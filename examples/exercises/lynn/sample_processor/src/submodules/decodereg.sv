@@ -12,7 +12,7 @@ module decodereg(
         output logic [1:0]  ALUSrcE,
         output logic [31:0] PCE, Rd1E, Rd2E, ImmExtE,
         output logic [2:0]  Funct3E,
-        output logic [4:0]  RdE,
+        output logic [4:0]  RdE
     );
 
     logic QRegWrite, QMemRW, QALUResultSrc, QJump, QALUControl;
@@ -33,31 +33,31 @@ module decodereg(
     mux2 #(1) Jumpmux(JumpE, (Jump & ~flush), noStall, QJump);
     flopr #(1) Jumpreg(.clk, .reset, .D(QJump), .Q(JumpE));
 
-    mux2 #(2) ALUControlmux(ALUControlE, (ALUControl & 2{~flush}), noStall, QALUControl);
+    mux2 #(2) ALUControlmux(ALUControlE, (ALUControl & {2{~flush}}), noStall, QALUControl);
     flopr #(2) ALUControlreg(.clk, .reset, .D(QALUControl), .Q(ALUControlE));
 
-    mux2 #(2) ResultSrcmux(ResultSrcE, (ResultSrc & 2{~flush}), noStall, QResultSrc);
+    mux2 #(2) ResultSrcmux(ResultSrcE, (ResultSrc & {2{~flush}}), noStall, QResultSrc);
     flopr #(2) ResultSrcreg(.clk, .reset, .D(QResultSrc), .Q(ResultSrcE));
 
-    mux2 #(2) ALUSrcmux(ALUSrcE, (ALUSrc & 2{~flush}), noStall, QALUSrc);
+    mux2 #(2) ALUSrcmux(ALUSrcE, (ALUSrc & {2{~flush}}), noStall, QALUSrc);
     flopr #(2) ALUSrcreg(.clk, .reset, .D(QALUSrc), .Q(ALUSrcE));
 
-    mux2 #(32) PCmux(PCE, (PCD & 32{~flush}), noStall, QPC);
+    mux2 #(32) PCmux(PCE, (PCD & {32{~flush}}), noStall, QPC);
     flopr #(32) PCreg(.clk, .reset, .D(QPC), .Q(PCE));
 
-    mux2 #(32) Rd1mux(Rd1E, (Rd1 & 32{~flush}), noStall, QRd1);
+    mux2 #(32) Rd1mux(Rd1E, (Rd1 & {32{~flush}}), noStall, QRd1);
     flopr #(32) Rd1reg(.clk, .reset, .D(QRd1), .Q(Rd1E));
 
-    mux2 #(32) Rd2mux(Rd2E, (Rd2 & 32{~flush}), noStall, QRd2);
+    mux2 #(32) Rd2mux(Rd2E, (Rd2 & {32{~flush}}), noStall, QRd2);
     flopr #(32) Rd2reg(.clk, .reset, .D(QRd2), .Q(Rd2E));
 
-    mux2 #(32) ImmExtmux(ImmExtE, (ImmExt & 32{~flush}), noStall, QImmExt);
+    mux2 #(32) ImmExtmux(ImmExtE, (ImmExt & {32{~flush}}), noStall, QImmExt);
     flopr #(32) ImmExtreg(.clk, .reset, .D(QImmExt), .Q(ImmExtE));
 
-    mux2 #(3) Funct3mux(Funct3E, (Funct3 & 3{~flush}), noStall, QFunct3);
+    mux2 #(3) Funct3mux(Funct3E, (Funct3 & {3{~flush}}), noStall, QFunct3);
     flopr #(3) Funct3reg(.clk, .reset, .D(QFunct3), .Q(Funct3E));
 
-    mux2 #(5) Rdmux(RdE, (RdD & 5{~flush}), noStall, QRd);
+    mux2 #(5) Rdmux(RdE, (RdD & {5{~flush}}), noStall, QRd);
     flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdE));
 
 endmodule

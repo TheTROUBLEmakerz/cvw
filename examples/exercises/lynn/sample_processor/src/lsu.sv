@@ -40,6 +40,6 @@ module lsu(
 
 
     memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW, .RegWriteM, .ResultSrcM, .MDU, .IEUResultM,
-                        .ReadDataM, .RegWriteW, .ResultSrcW, .MDUW, .IEUResultW, .ReadDataW)
+                        .ReadDataM, .RegWriteW, .ResultSrcW, .MDUW, .IEUResultW, .ReadDataW);
 
 endmodule

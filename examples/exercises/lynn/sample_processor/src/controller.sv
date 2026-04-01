@@ -28,7 +28,7 @@ module controller(
     );
     logic Flag;
 
-    logic Branch, Jump;
+    logic Branch;
     logic Sub, ALUOp;
     logic MemWrite;
     logic [13:0] controls;

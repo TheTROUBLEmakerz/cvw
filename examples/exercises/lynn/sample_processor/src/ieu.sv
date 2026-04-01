@@ -50,7 +50,8 @@ module ieu(
     // immediate extend unit
     extend ext(.Instr(InstrD[31:7]), .ImmSrc(ImmSrcD), .ImmExt(ImmExtD));
 
-    decodereg decodereg(.clk, .reset, .FlushE, .noStallE, .RegWrite, .MemRW(MemEn), .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1, .Rd2, .ImmExtD, .Funct3, .RdD,
+
+    decodereg decodereg(.clk, .reset, .FlushE, .noStallE(~StallE), .RegWrite, .MemRW(MemEn), .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1, .Rd2, .ImmExtD, .Funct3, .RdD,
                         .RegWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .RdE);
 
     datapath dp(.clk, .reset, .Funct3(Instr[14:12]),
