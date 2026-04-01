@@ -6,12 +6,12 @@ module decodereg(
         input  logic        RegWrite, MemRW, ALUResultSrc, Jump, ALUControl,
         input  logic [1:0]  ResultSrc, ALUSrc,
         input  logic [31:0] PCD, Rd1, Rd2, ImmExt,
-        input  logic [2:0]  Funct3,
+        input  logic [2:0]  Funct3, Funct7b5,
         input  logic [4:0]  RdD,
         output logic        RegWriteE, ResultSrcE, MemRWE, ALUResultSrcE, JumpE, ALUControlE,
         output logic [1:0]  ALUSrcE,
         output logic [31:0] PCE, Rd1E, Rd2E, ImmExtE,
-        output logic [2:0]  Funct3E,
+        output logic [2:0]  Funct3E, Funct7b5E,
         output logic [4:0]  RdE
     );
 
@@ -56,6 +56,9 @@ module decodereg(
 
     mux2 #(3) Funct3mux(Funct3E, (Funct3 & {3{~flush}}), noStall, QFunct3);
     flopr #(3) Funct3reg(.clk, .reset, .D(QFunct3), .Q(Funct3E));
+
+    mux2 #(1) Funct7mux(Funct7b5E, (Funct7b5 & ~flush), noStall, QFunct7);
+    flopr #(1) Funct7reg(.clk, .reset, .D(QFunct7), .Q(Funct7b5E));
 
     mux2 #(5) Rdmux(RdE, (RdD & {5{~flush}}), noStall, QRd);
     flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdE));
