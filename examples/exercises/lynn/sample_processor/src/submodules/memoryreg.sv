@@ -18,13 +18,13 @@ module memoryreg(
     logic [1:0] QResultSrc;
     logic [31:0] QCSR, QIEUResult, QReadData, QImmExt;
 
-    mux2 #(5) Rdmux(RdW, (RdM & ~FlushW), noStallW, QRd);
+    mux2 #(5) Rdmux(RdW, (RdM & {5{~FlushW}}), noStallW, QRd);
     flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdW));
 
     mux2 #(1) RegWritemux(RegWriteW, (RegWriteM & ~FlushW), noStallW, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteW));
 
-    mux2 #(1) Validmux(ValidW, (ValidM & ~FlushM), noStallM, QValid);
+    mux2 #(1) Validmux(ValidW, (ValidM & ~FlushW), noStallW, QValid);
     flopr #(1) Validreg(.clk, .reset, .D(QValid), .Q(ValidW));
 
     mux2 #(2) ResultSrcmux(ResultSrcW, (ResultSrcM & {2{~FlushW}}), noStallW, QResultSrc);

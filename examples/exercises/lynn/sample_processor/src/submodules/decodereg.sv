@@ -30,7 +30,7 @@ module decodereg(
     mux2 #(1) RegWritemux(RegWriteE, (RegWrite & ~FlushE), noStallE, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteE));
 
-    mux2 #(1) Validmux(ValidE, (ValidD & ~FlushM), noStallM, QValid);
+    mux2 #(1) Validmux(ValidE, (ValidD & ~FlushE), noStallE, QValid);
     flopr #(1) Validreg(.clk, .reset, .D(QValid), .Q(ValidE));
 
     mux2 #(1) Branchmux(BranchE, (Branch & ~FlushE), noStallE, QBranch);

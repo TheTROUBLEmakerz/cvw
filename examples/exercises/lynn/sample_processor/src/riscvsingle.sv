@@ -40,10 +40,10 @@ module riscvsingle (
     ifu ifu(.clk, .reset, .PCSrcE, .IEUAdrE, .PC, .StallF);
     fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF(PC), .InstrF(Instr), .PCD, .InstrD, .ValidD);
     ieu ieu(.clk, .reset, .StallE, .ImmExtE, .FlushE, .ForwardAE, .ForwardBE, .InstrD, .CSRout, .PCD, .PCSrcE, .WriteByteEnE, .RegWriteW, .ResultSrcW, .IEUResultM, .IEUResultW, .ReadDataW, .RdW, .IEUAdrE, .IEUResultE, .ReadData, .CSRW, .MemRWE, .FSrcBE,
-            .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .ImmExtW, .IsStore, .IsLoad, .IsLui, .IsAuipc, .RdE, .Rs2E, .Rs1E, .Funct3E, .RegWriteE, .ResultSrcE, .CSRE);
+            .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .ImmExtW, .IsStore, .IsLoad, .IsLui, .IsAuipc, .RdE, .Rs2E, .Rs1E, .Funct3E, .RegWriteE, .ResultSrcE, .CSRE, .ValidD, .ValidE);
     lsu lsu(.clk, .reset, .Funct3E, .ImmExtE, .IEUAdrE, .ImmExtW, .IEUResultE, .RdE, .RdM, .RegWriteM, .FSrcBE, .ReadData, .IEUAdr, .WriteData, .Funct3M, .RegWriteE, .MemRWE, .ResultSrcE, .StallM, .FlushM, .StallW, .FlushW, .CSRE, .IEUResultW, .ReadDataW, .RdW, .RegWriteW, .ResultSrcW, .MemEn, .CSRW, .ResultM(IEUResultM), .WriteByteEn(WriteByteEnE), .WriteByteEnM(WriteByteEn), .ValidW, .ValidE);
     assign InsnRetired = ValidW & ~StallW;
-    CSR CSRmodule(.clk, .reset, .CSRAddress(InstrD[31:20]), .CSRout, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc);
+    CSR CSRmodule(.clk, .reset, .InsnRetired, .CSRAddress(InstrD[31:20]), .CSRout, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc);
     assign WriteEn = |WriteByteEn;
-    hazard hazard(.Rs1D(InstrD[19:15]), .Rs2D(InstrD[24:20]), .Rs1E, .Rs2E, .RdE, .PCSrcE, .ResultSrcE0(ResultSrcE[0]), .RdM, .RegWriteM, .RegWriteW, .StallF, .StallD, .FlushD, .FlushE, .ForwardAE, .ForwardBE, .FlushW, .StallW, .FlushM, .StallM, .StallE, .RdW);
+    hazard hazard(.Rs1D(InstrD[19:15]), .Rs2D(InstrD[24:20]), .Rs1E, .Rs2E, .RdE, .PCSrcE, .ResultSrcE, .RdM, .RegWriteM, .RegWriteW, .StallF, .StallD, .FlushD, .FlushE, .ForwardAE, .ForwardBE, .FlushW, .StallW, .FlushM, .StallM, .StallE, .RdW);
 endmodule

@@ -36,14 +36,14 @@ module CSR(
                 if (InsnRetired)
                     rdinsret <= rdinsret + 1;
                 // wait so confused isnt number of cycles and instructions retired da same
-                hpm3    <= hpm3 + {{63{1'b0}}, IsAdd};
-                hpm4    <= hpm4 + {{63{1'b0}}, IsBranch};
-                hpm5    <= hpm5 + {{63{1'b0}}, IsBranchTaken};
-                hpm6    <= hpm6 + {{63{1'b0}}, IsJump};
-                hpm7    <= hpm7 + {{63{1'b0}}, IsStore};
-                hpm8    <= hpm8 + {{63{1'b0}}, IsLoad}; //not Upper ones
-                hpm9    <= hpm9 + {{63{1'b0}}, IsLui};
-                hpm10   <= hpm10 + {{63{1'b0}}, IsAuipc};
+                // hpm3    <= hpm3 + {{63{1'b0}}, IsAdd};
+                // hpm4    <= hpm4 + {{63{1'b0}}, IsBranch};
+                // hpm5    <= hpm5 + {{63{1'b0}}, IsBranchTaken};
+                // hpm6    <= hpm6 + {{63{1'b0}}, IsJump};
+                // hpm7    <= hpm7 + {{63{1'b0}}, IsStore};
+                // hpm8    <= hpm8 + {{63{1'b0}}, IsLoad}; //not Upper ones
+                // hpm9    <= hpm9 + {{63{1'b0}}, IsLui};
+                // hpm10   <= hpm10 + {{63{1'b0}}, IsAuipc};
             end
         end
 

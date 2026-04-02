@@ -56,7 +56,7 @@ module executereg(
     mux2 #(5) Rdmux(RdM, (RdE & {5{~FlushM}}), noStallM, QRd);
     flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdM));
 
-    mux2 #(4) WriteBytemux(WriteByteEnMM, (WriteByteEn & {4{~FlushM}}), noStallM, QWriteByte);
+    mux2 #(4) WriteBytemux(WriteByteEnM, (WriteByteEn & {4{~FlushM}}), noStallM, QWriteByte);
     flopr #(4) WriteBytereg(.clk, .reset, .D(QWriteByte), .Q(WriteByteEnM));
 
 endmodule
