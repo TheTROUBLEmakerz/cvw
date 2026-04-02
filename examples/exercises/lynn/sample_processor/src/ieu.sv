@@ -36,11 +36,11 @@ module ieu(
     logic         IsMul, Funct7b5E;
     logic  [31:0] PCE;
 
-    logic         RegWriteE, MemEn, ALUResultSrcE, JumpE;
+    logic         RegWriteE, MemEn, ALUResultSrcE;
     logic  [1:0]  ResultSrcE, ALUSrcE,ALUControlE;
 
-    controller c(.JumpE, ,BranchE, .IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
-        .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc(PCSrcE), .Funct7(InstrD[31:25]), .IsMul, .Jump,
+    controller c(.JumpE, .BranchE, .IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
+        .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc(PCSrcE), .Funct7(InstrD[31:25]), .IsMul, .Jump, .Funct3E,
         .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc
     `ifdef DEBUG
         , .insn_debug(InstrD)

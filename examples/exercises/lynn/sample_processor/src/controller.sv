@@ -8,7 +8,7 @@ module controller(
         input   logic [1:0]   IEUAdr,
         input   logic [6:0]   Op, Funct7,
         input   logic         Lt, Eq,
-        input   logic [2:0]   Funct3,
+        input   logic [2:0]   Funct3, Funct3E,
         input   logic         Funct7b5,
         output  logic         ALUResultSrc,
         output  logic [1:0]   ResultSrc,
@@ -86,10 +86,10 @@ end
 
     always_comb
     begin
-        case(Funct3[2:1])
-            2'b00: Flag = (Funct3[0] ^ Eq);
-            2'b10: Flag = (Funct3[0] ^ Lt);
-            2'b11: Flag = (Funct3[0] ^ Lt);
+        case(Funct3E[2:1])
+            2'b00: Flag = (Funct3E[0] ^ Eq);
+            2'b10: Flag = (Funct3E[0] ^ Lt);
+            2'b11: Flag = (Funct3E[0] ^ Lt);
             default: Flag = 0;
         endcase
     end
@@ -112,7 +112,7 @@ end
         WriteByteEn = 4'b0000;
 
         if (MemWrite === 1'b1) begin
-            casez ({Funct3[1:0], IEUAdr})
+            casez ({Funct3E[1:0], IEUAdr})
                 4'b10_??: WriteByteEn = 4'b1111; // sw
                 4'b01_0?: WriteByteEn = 4'b0011; // sh
                 4'b01_1?: WriteByteEn = 4'b1100;
