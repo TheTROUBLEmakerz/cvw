@@ -12,7 +12,7 @@ module controller(
         input   logic         Funct7b5,
         output  logic         ALUResultSrc,
         output  logic [1:0]   ResultSrc,
-        output  logic [3:0]   WriteByteEn,
+        // output  logic [3:0]   WriteByteEn,
         // output  logic         PCSrc,
         output  logic         RegWrite,
         output  logic [1:0]   ALUSrc,
@@ -47,7 +47,7 @@ module controller(
             7'b1100111: controls = 14'b1_000_01_0_1_0_00_0_1_0; // jalr
             7'b0110111: controls = 14'b1_111_00_0_0_0_10_0_0_0; // lui
             7'b0010111: controls = 14'b1_111_11_0_0_0_00_0_0_0; // auipc
-            7'b1110011: controls = 14'b1_000_00_0_0_0_11_0_0_0; // CSR
+            7'b1110011: controls = 14'b1_000_00_0_0_0_10_0_0_0; // CSR
             default: begin
                 `ifdef DEBUG
                     controls = 14'bx_xxx_xx_x_x_x_xx_x_x_x; // non-implemented instruction

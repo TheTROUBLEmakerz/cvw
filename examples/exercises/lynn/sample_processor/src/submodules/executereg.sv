@@ -5,18 +5,18 @@ module executereg(
         input  logic        FlushM, noStallM,
         input  logic        RegWriteE, MemRWE,
         input  logic [1:0]  ResultSrcE,
-        input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE,
+        input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE, CSRE,
         input  logic [2:0]  Funct3E,
         input  logic [4:0]  RdE,
         output logic        RegWriteM, MemRWM,
         output logic [1:0]  ResultSrcM,
-        output logic [31:0] IEUResultM, IEUAdrM, FSrcBM,
+        output logic [31:0] IEUResultM, IEUAdrM, FSrcBM, CSRM,
         output logic [2:0]  Funct3M,
         output logic [4:0]  RdM
     );
     logic QRegWrite, QMemRW;
     logic [1:0] QResultSrc;
-    logic [31:0] QIEUResult, QIEUAdr, QFSrcB;
+    logic [31:0] QIEUResult, QIEUAdr, QFSrcB, QCSR;
     logic [2:0] QFunct3;
     logic [4:0] QRd;
 
@@ -37,6 +37,9 @@ module executereg(
 
     mux2 #(32) FSrcBmux(FSrcBM, (FSrcBE & {32{~FlushM}}), noStallM, QFSrcB);
     flopr #(32) FSrcBreg(.clk, .reset, .D(QFSrcB), .Q(FSrcBM));
+
+    mux2 #(32) CSRmux(CSRM, (CSRE & {32{~FlushM}}), noStallM, QCSR);
+    flopr #(32) CSRreg(.clk, .reset, .D(QCSR), .Q(CSRM));
 
     mux2 #(3) Funct3mux(Funct3M, (Funct3E & {3{~FlushM}}), noStallM, QFunct3);
     flopr #(3) Funct3reg(.clk, .reset, .D(QFunct3), .Q(Funct3M));

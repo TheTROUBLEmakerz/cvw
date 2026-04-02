@@ -11,7 +11,6 @@ module datapath(
         output  logic           Eq, Lt, //
         input   logic [31:0]    PCE, //
         output  logic [31:0]    IEUAdrE, FSrcBE, IEUResultE, //
-        input   logic [31:0]    CSRout,
         input   logic           IsMul,
         input   logic           ALUResultSrcE, JumpE,//
         input   logic [1:0]     ALUSrcE, //

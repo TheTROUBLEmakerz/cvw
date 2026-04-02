@@ -5,7 +5,7 @@ module memoryreg(
         input  logic        FlushW, noStallW,
         input  logic        RegWriteM,
         input  logic [1:0]  ResultSrcM,
-        input  logic [31:0] CSR, IEUResultM, ReadDataM,
+        input  logic [31:0] CSRM, IEUResultM, ReadDataM,
         input  logic [4:0]  RdM,
         output logic        RegWriteW,
         output logic [1:0]  ResultSrcW,
@@ -27,7 +27,7 @@ module memoryreg(
     mux2 #(2) ResultSrcmux(ResultSrcW, (ResultSrcM & {2{~FlushW}}), noStallW, QResultSrc);
     flopr #(2) ResultSrcreg(.clk, .reset, .D(QResultSrc), .Q(ResultSrcW));
 
-    mux2 #(32) CSRmux(CSRW, (CSR & {32{~FlushW}}), noStallW, QCSR);
+    mux2 #(32) CSRmux(CSRW, (CSRM & {32{~FlushW}}), noStallW, QCSR);
     flopr #(32) CSRreg(.clk, .reset, .D(QCSR), .Q(CSRW));
 
     mux2 #(32) IEUResultmux(IEUResultW, (IEUResultM & {32{~FlushW}}), noStallW, QIEUResult);

@@ -12,7 +12,7 @@ module lsu(
         input   logic           RegWriteE, MemRWE,
         input   logic [1:0]     ResultSrcE,
         input   logic           StallM, FlushM, StallW, FlushW,
-        input   logic [31:0]    CSR,
+        input   logic [31:0]    CSRE,
         input   logic [4:0]     RdE,
         output  logic [31:0]    IEUResultW, ReadDataW,
         output  logic [4:0]     RdW,RdM,
@@ -25,9 +25,9 @@ module lsu(
 
 
     logic [1:0]  ResultSrcM;
-    logic [31:0] FSrcBM, ReadDataM;
+    logic [31:0] FSrcBM, ReadDataM, CSRM;
     executereg executereg(.clk, .reset, .FlushM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE,
-                        .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM);
+                        .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM, .CSRE, .CSRM);
 
     ext2 ext2(Funct3M, IEUAdr[2:0], ReadData, ReadDataM); // this is for load/store
 
@@ -42,7 +42,7 @@ module lsu(
     end
 
 
-    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .CSR, .IEUResultM,
+    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .CSRM, .IEUResultM,
                         .ReadDataM, .RegWriteW, .ResultSrcW, .CSRW, .IEUResultW, .ReadDataW, .RdW, .RdM);
 
 endmodule
