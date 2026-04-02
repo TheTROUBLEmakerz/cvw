@@ -20,8 +20,8 @@ module controller(
         output  logic [1:0]   ALUControl,
         output  logic         MemEn,MemWrite,
         output  logic         Jump, Branch,
-        output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
-        output  logic         IsMul,
+        // output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
+        // output  logic         IsMul,
         input   logic         JumpE, BranchE
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
@@ -71,16 +71,16 @@ module controller(
                | (Funct3 == 3'b011) );                   // sltu//assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5]);
     assign ALUControl = {Sub, ALUOp};
 
-    always_comb begin
-  IsMul = 1'b0;
+    // always_comb begin
+//   IsMul = 1'b0;
 
   // Only assert when opcode/funct7/funct3 are DEFINITELY matching
-  if (Op    === 7'b0110011 &&
-      Funct7=== 7'b0000001 &&
-      (Funct3 === 3'b000 || Funct3 === 3'b001 || Funct3 === 3'b010 || Funct3 === 3'b011)) begin
-    IsMul = 1'b1;
-  end
-end
+//   if (Op    === 7'b0110011 &&
+//       Funct7=== 7'b0000001 &&
+//       (Funct3 === 3'b000 || Funct3 === 3'b001 || Funct3 === 3'b010 || Funct3 === 3'b011)) begin
+//     IsMul = 1'b1;
+//   end
+// end
     // PCSrc logic
 
     // always_comb
@@ -95,15 +95,15 @@ end
 
     // assign PCSrc = BranchE & Flag | JumpE;
 
-    assign IsAdd = (!((Funct7b5) | (&Funct3))) & (Op == 7'b0110011);
-    assign IsBranch = Branch;
-    //need fix
-    // assign IsBranchTaken = Branch & Flag;
-    assign IsJump = Jump;
-    assign IsStore = (Op == 7'b0100011);
-    assign IsLoad = (Op == 7'b0000011);
-    assign IsLui = (Op == 7'b0110111);
-    assign IsAuipc = (Op == 7'b0010111);
+    // assign IsAdd = (!((Funct7b5) | (&Funct3))) & (Op == 7'b0110011);
+    // assign IsBranch = Branch;
+    // //need fix
+    // // assign IsBranchTaken = Branch & Flag;
+    // assign IsJump = Jump;
+    // assign IsStore = (Op == 7'b0100011);
+    // assign IsLoad = (Op == 7'b0000011);
+    // assign IsLui = (Op == 7'b0110111);
+    // assign IsAuipc = (Op == 7'b0010111);
     // MemWrite logic
     //assign WriteByteEn = {(4){MemWrite}}; // currently assigns all 4 bytes to MemWrite
 

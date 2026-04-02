@@ -18,6 +18,6 @@ module fetchreg(
     mux2 #(32) Instrmux(InstrD, (InstrF & {32{~FlushD}}), noStallD, Qmid2);
     flopr #(32) Instrreg(.clk, .reset, .D(Qmid2), .Q(InstrD));
 
-    mux2 #(1) Validmux(ValidD, (~reset & ~FlushM), noStallM, QValid);
+    mux2 #(1) Validmux(ValidD, (~reset & ~FlushD), noStallD, QValid);
     flopr #(1) Validreg(.clk, .reset, .D(QValid), .Q(ValidD));
 endmodule

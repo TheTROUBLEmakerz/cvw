@@ -3,7 +3,7 @@
 
 module CSR(
     input   logic           reset, clk,
-    input   logic           InsnRetired, IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
+    input   logic           InsnRetired, //IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
     input   logic [11:0]    CSRAddress,
     output  logic [31:0]    CSRout
     );
