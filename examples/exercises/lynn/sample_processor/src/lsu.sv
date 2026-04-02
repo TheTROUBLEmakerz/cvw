@@ -19,13 +19,13 @@ module lsu(
         output  logic           RegWriteW, RegWriteM,
         output  logic [1:0]     ResultSrcW,
         output  logic           MemEn,
-        output  logic [31:0]    CSRW
+        output  logic [31:0]    CSRW, IEUResultM
         // fill in
     );
 
 
     logic [1:0]  ResultSrcM;
-    logic [31:0] IEUResultM, FSrcBM, ReadDataM;
+    logic [31:0] FSrcBM, ReadDataM;
     executereg executereg(.clk, .reset, .FlushM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE,
                         .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM);
 
