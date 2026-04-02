@@ -20,7 +20,7 @@ module ieu(
         input   logic [4:0]     RdW,
         output  logic [31:0]    IEUAdrE, IEUResultE, FSrcBE,
         input   logic [31:0]    ReadData, CSRW,
-        output  logic           MemRWE,
+        output  logic           MemRWE, RegWriteE,
         output  logic           IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
         output  logic [4:0]     RdE, Rs1E, Rs2E,
         output  logic [2:0]     Funct3E,
@@ -37,7 +37,7 @@ module ieu(
     logic         IsMul, Funct7b5E;
     logic  [31:0] PCE;
 
-    logic         RegWriteE, MemEn, ALUResultSrcE;
+    logic         MemEn, ALUResultSrcE;
     logic  [1:0]  ALUSrcE,ALUControlE;
 
     controller c(.JumpE, .BranchE, .IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
