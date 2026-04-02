@@ -6,14 +6,20 @@ module memoryreg(
         input  logic        RegWriteM,
         input  logic [1:0]  ResultSrcM,
         input  logic [31:0] CSR, IEUResultM, ReadDataM,
+        input  logic [4:0]  RdM,
         output logic        RegWriteW,
         output logic [1:0]  ResultSrcW,
-        output logic [31:0] CSRW, IEUResultW, ReadDataW
+        output logic [31:0] CSRW, IEUResultW, ReadDataW,
+        output logic [4:0]  RdW
     );
 
     logic QRegWrite;
+    logic [4:0] QRd;
     logic [1:0] QResultSrc;
     logic [31:0] QCSR, QIEUResult, QReadData;
+
+    mux2 #(5) Rdmux(RdW, (RdM & ~FlushW), noStallW, QRd);
+    flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdW));
 
     mux2 #(1) RegWritemux(RegWriteW, (RegWriteM & ~FlushW), noStallW, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteW));
