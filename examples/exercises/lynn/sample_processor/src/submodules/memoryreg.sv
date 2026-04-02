@@ -5,18 +5,18 @@ module memoryreg(
         input  logic        FlushW, noStallW,
         input  logic        RegWriteM,
         input  logic [1:0]  ResultSrcM,
-        input  logic [31:0] CSRM, IEUResultM, ReadDataM,
+        input  logic [31:0] CSRM, IEUResultM, ReadDataM,ImmExtM,
         input  logic [4:0]  RdM,
         output logic        RegWriteW,
         output logic [1:0]  ResultSrcW,
-        output logic [31:0] CSRW, IEUResultW, ReadDataW,
+        output logic [31:0] CSRW, IEUResultW, ReadDataW, ImmExtW,
         output logic [4:0]  RdW
     );
 
     logic QRegWrite;
     logic [4:0] QRd;
     logic [1:0] QResultSrc;
-    logic [31:0] QCSR, QIEUResult, QReadData;
+    logic [31:0] QCSR, QIEUResult, QReadData, QImmExt;
 
     mux2 #(5) Rdmux(RdW, (RdM & ~FlushW), noStallW, QRd);
     flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdW));
@@ -32,6 +32,9 @@ module memoryreg(
 
     mux2 #(32) IEUResultmux(IEUResultW, (IEUResultM & {32{~FlushW}}), noStallW, QIEUResult);
     flopr #(32) IEUResultreg(.clk, .reset, .D(QIEUResult), .Q(IEUResultW));
+
+    mux2 #(32) ImmExtmux(ImmExtW, (ImmExtM & {32{~FlushW}}), noStallW, QImmExt);
+    flopr #(32) ImmExtreg(.clk, .reset, .D(QImmExt), .Q(ImmExtW));
 
     mux2 #(32) ReadDatamux(ReadDataW, (ReadDataM & {32{~FlushW}}), noStallW, QReadData);
     flopr #(32) ReadDatareg(.clk, .reset, .D(QReadData), .Q(ReadDataW));

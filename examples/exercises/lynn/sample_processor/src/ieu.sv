@@ -19,8 +19,8 @@ module ieu(
         input   logic [31:0]    IEUResultM, IEUResultW, ReadDataW,
         input   logic [4:0]     RdW,
         output  logic [31:0]    IEUAdrE, IEUResultE, FSrcBE,
-        input   logic [31:0]    ReadData, CSRW,
-        output  logic [31:0]    CSRE,
+        input   logic [31:0]    ReadData, CSRW, ImmExtW,
+        output  logic [31:0]    CSRE,ImmExtE,
         output  logic           MemRWE, RegWriteE,
         output  logic           IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
         output  logic [4:0]     RdE, Rs1E, Rs2E,
@@ -30,7 +30,7 @@ module ieu(
 
     logic [31:0]    Rd1D, Rd1E, Rd2D, Rd2E;
     logic RegWrite, Jump, Branch, Eq, ALUResultSrc, Lt, JumpE, BranchE;
-    logic  [31:0] ImmExtD, ImmExtE, ResultW;
+    logic  [31:0] ImmExtD, ResultW;
     logic  [1:0]  ResultSrc;
     logic  [1:0]  ALUSrc;
     logic  [2:0]  ImmSrcD;
@@ -61,7 +61,8 @@ module ieu(
                         .RegWriteE, .MemWrite, .MemWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .RdE, .Rs1E, .Rs2E, .CSRD(CSRout), .CSRE);
 
     datapath dp(.clk, .reset, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .ALUControlE, .Eq, .Lt, .PCE, .IEUAdrE, .FSrcBE, .IEUResultE, .IsMul, .ALUResultSrcE, .JumpE, .ALUSrcE, .IEUResultM, .ResultW, .ForwardAE, .ForwardBE);
-    mux3 #(32) resultmux(IEUResultW, ReadDataW, CSRW, ResultSrcW, ResultW);
+    // mux3 #(32) resultmux(IEUResultW, ReadDataW, CSRW, ResultSrcW, ResultW);
+    mux4 #(32) resultmux(IEUResultW, ReadDataW, ImmExtW, CSRW, ResultSrcW, ResultW);
 
     always_comb begin
         WriteByteEn = 4'b0000;

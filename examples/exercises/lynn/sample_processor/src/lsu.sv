@@ -12,25 +12,26 @@ module lsu(
         input   logic           RegWriteE, MemRWE,
         input   logic [1:0]     ResultSrcE,
         input   logic           StallM, FlushM, StallW, FlushW,
-        input   logic [31:0]    CSRE,
+        input   logic [31:0]    CSRE, ImmExtE,
         input   logic [4:0]     RdE,
         output  logic [31:0]    IEUResultW, ReadDataW,
         output  logic [4:0]     RdW,RdM,
         output  logic           RegWriteW, RegWriteM,
         output  logic [1:0]     ResultSrcW,
         output  logic           MemEn,
-        output  logic [31:0]    CSRW, IEUResultM
+        output  logic [31:0]    CSRW, ResultM, ImmExtW
         // fill in
     );
 
 
     logic [1:0]  ResultSrcM;
-    logic [31:0] FSrcBM, ReadDataM, CSRM;
-    executereg executereg(.clk, .reset, .FlushM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE,
+    logic [31:0] FSrcBM, ReadDataM, CSRM, ImmExtM, IEUResultM;
+    executereg executereg(.clk, .reset, .FlushM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE, .ImmExtE, .ImmExtM,
                         .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM, .CSRE, .CSRM);
 
     ext2 ext2(Funct3M, IEUAdr[2:0], ReadData, ReadDataM); // this is for load/store
 
+    mux4 #(32) resultmuxM(IEUResultM, ReadDataM, ImmExtM, CSRM, ResultSrcM, ResultM);
     always_comb
     begin
         case(Funct3M[1:0])
@@ -43,6 +44,6 @@ module lsu(
 
 
     memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .CSRM, .IEUResultM,
-                        .ReadDataM, .RegWriteW, .ResultSrcW, .CSRW, .IEUResultW, .ReadDataW, .RdW, .RdM);
+                        .ReadDataM, .RegWriteW, .ResultSrcW, .CSRW, .IEUResultW, .ReadDataW, .RdW, .RdM, .ImmExtM, .ImmExtW);
 
 endmodule
