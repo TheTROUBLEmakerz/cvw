@@ -39,7 +39,7 @@ module riscvsingle (
     ifu ifu(.clk, .reset, .PCSrcE, .IEUAdrE, .PC, .StallF);
     fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF(PC), .InstrF(Instr), .PCD, .InstrD);
     ieu ieu(.clk, .reset, .StallE, .FlushE, .ForwardAE, .ForwardBE, .InstrD, .CSRout, .PCD, .PCSrcE, .WriteByteEn, .RegWriteW, .ResultSrcW, .IEUResultM, .IEUResultW, .ReadDataW, .RdW, .IEUAdrE, .IEUResultE, .ReadData, .CSRW, .MemRWE, .FSrcBE,
-            .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc, .RdE, .Rs2E, .Rs1E, .Funct3E);
+            .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc, .RdE, .Rs2E, .Rs1E, .Funct3E, .ResultSrcE);
     lsu lsu(.clk, .reset, .Funct3E, .IEUAdrE, .IEUResultE, .RdE, .FSrcBE, .ReadData, .IEUAdr, .WriteData, .Funct3M, .RegWriteE, .MemRWE, .ResultSrcE, .StallM, .FlushM, .StallW, .FlushW, .CSR, .IEUResultW, .ReadDataW, .RdW, .RegWriteW, .ResultSrcW, .MemEn, .CSRW);
     CSR CSRmodule(.clk, .reset, .CSRAddress(Instr[31:20]), .CSRout, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc);
     assign WriteEn = |WriteByteEn;
