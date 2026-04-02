@@ -3,7 +3,7 @@
 
 module CSR(
     input   logic           reset, clk,
-    input   logic           IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
+    input   logic           InsnRetired, IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
     input   logic [11:0]    CSRAddress,
     output  logic [31:0]    CSRout
     );
@@ -33,7 +33,7 @@ module CSR(
             begin
                 rdcycle <= rdcycle + 1;
                 rdtime  <= rdtime + 1;
-                //WHATTT if (flag_pc_changed)
+                if (InsnRetired)
                     rdinsret <= rdinsret + 1;
                 // wait so confused isnt number of cycles and instructions retired da same
                 hpm3    <= hpm3 + {{63{1'b0}}, IsAdd};

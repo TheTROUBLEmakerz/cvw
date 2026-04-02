@@ -2,7 +2,7 @@
 
 module decodereg(
         input  logic        clk, reset,
-        input  logic        FlushE, noStallE,
+        input  logic        FlushE, noStallE, ValidD,
         input  logic        RegWrite, MemRW, ALUResultSrc, Jump,
         input  logic [1:0]  ResultSrc, ALUSrc, ALUControl,
         input  logic [31:0] PCD, Rd1, Rd2, ImmExt, CSRD,
@@ -13,11 +13,11 @@ module decodereg(
         output logic [1:0]  ALUSrcE, ALUControlE, ResultSrcE,
         output logic [31:0] PCE, Rd1E, Rd2E, ImmExtE, CSRE,
         output logic [2:0]  Funct3E,
-        output logic        Funct7b5E, BranchE,
+        output logic        Funct7b5E, BranchE, ValidE,
         output logic [4:0]  RdE, Rs1E, Rs2E
     );
 
-    logic QRegWrite, QMemRW, QALUResultSrc, QJump, QFunct7, QBranch, QMemWrite;
+    logic QRegWrite, QMemRW, QALUResultSrc, QJump, QFunct7, QBranch, QMemWrite, QValid;
     logic [1:0] QResultSrc, QALUSrc, QALUControl;
     logic [31:0] QPC, QRd1, QRd2, QImmExt, QCSR;
     logic [2:0] QFunct3;
@@ -27,9 +27,11 @@ module decodereg(
     mux2 #(1) MemWritemux(MemWriteE, (MemWrite & ~FlushE), noStallE, QMemWrite);
     flopr #(1) MemWritereg(.clk, .reset, .D(QMemWrite), .Q(MemWriteE));
 
-
     mux2 #(1) RegWritemux(RegWriteE, (RegWrite & ~FlushE), noStallE, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteE));
+
+    mux2 #(1) Validmux(ValidE, (ValidD & ~FlushM), noStallM, QValid);
+    flopr #(1) Validreg(.clk, .reset, .D(QValid), .Q(ValidE));
 
     mux2 #(1) Branchmux(BranchE, (Branch & ~FlushE), noStallE, QBranch);
     flopr #(1) Branchreg(.clk, .reset, .D(QBranch), .Q(BranchE));

@@ -2,18 +2,18 @@
 
 module memoryreg(
         input  logic        clk, reset,
-        input  logic        FlushW, noStallW,
+        input  logic        FlushW, noStallW, ValidM,
         input  logic        RegWriteM,
         input  logic [1:0]  ResultSrcM,
         input  logic [31:0] CSRM, IEUResultM, ReadDataM,ImmExtM,
         input  logic [4:0]  RdM,
-        output logic        RegWriteW,
+        output logic        RegWriteW, ValidW,
         output logic [1:0]  ResultSrcW,
         output logic [31:0] CSRW, IEUResultW, ReadDataW, ImmExtW,
         output logic [4:0]  RdW
     );
 
-    logic QRegWrite;
+    logic QRegWrite, QValid;
     logic [4:0] QRd;
     logic [1:0] QResultSrc;
     logic [31:0] QCSR, QIEUResult, QReadData, QImmExt;
@@ -23,6 +23,9 @@ module memoryreg(
 
     mux2 #(1) RegWritemux(RegWriteW, (RegWriteM & ~FlushW), noStallW, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteW));
+
+    mux2 #(1) Validmux(ValidW, (ValidM & ~FlushM), noStallM, QValid);
+    flopr #(1) Validreg(.clk, .reset, .D(QValid), .Q(ValidW));
 
     mux2 #(2) ResultSrcmux(ResultSrcW, (ResultSrcM & {2{~FlushW}}), noStallW, QResultSrc);
     flopr #(2) ResultSrcreg(.clk, .reset, .D(QResultSrc), .Q(ResultSrcW));
