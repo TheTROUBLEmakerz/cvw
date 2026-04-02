@@ -61,6 +61,7 @@ module testbench;
 
       $display("PC: %h \t Instr: %h", PC, Instr);
 
+
       // $display("MemEn: %b",
       //         MemEn
       //         );

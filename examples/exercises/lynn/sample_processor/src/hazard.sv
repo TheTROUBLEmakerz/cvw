@@ -29,7 +29,7 @@ module hazard(
             ForwardBE = 2'b00;
     end
 
-    assign lwStall = ResultSrcE0 & ((Rs1D == RdE) | (Rs2D == RdE));
+    assign lwStall = ResultSrcE0 && (RdE != 5'd0) && ((Rs1D == RdE) || (Rs2D == RdE));
     assign StallF = lwStall;
     assign StallD = lwStall;
     assign StallE = 0;

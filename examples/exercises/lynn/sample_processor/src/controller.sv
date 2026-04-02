@@ -13,12 +13,12 @@ module controller(
         output  logic         ALUResultSrc,
         output  logic [1:0]   ResultSrc,
         output  logic [3:0]   WriteByteEn,
-        output  logic         PCSrc,
+        // output  logic         PCSrc,
         output  logic         RegWrite,
         output  logic [1:0]   ALUSrc,
         output  logic [2:0]   ImmSrc,
         output  logic [1:0]   ALUControl,
-        output  logic         MemEn,
+        output  logic         MemEn,MemWrite,
         output  logic         Jump, Branch,
         output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
         output  logic         IsMul,
@@ -30,7 +30,6 @@ module controller(
     logic Flag;
 
     logic Sub, ALUOp;
-    logic MemWrite;
     logic [13:0] controls;
 
 
@@ -84,22 +83,22 @@ module controller(
 end
     // PCSrc logic
 
-    always_comb
-    begin
-        case(Funct3E[2:1])
-            2'b00: Flag = (Funct3E[0] ^ Eq);
-            2'b10: Flag = (Funct3E[0] ^ Lt);
-            2'b11: Flag = (Funct3E[0] ^ Lt);
-            default: Flag = 0;
-        endcase
-    end
+    // always_comb
+    // begin
+    //     case(Funct3E[2:1])
+    //         2'b00: Flag = (Funct3E[0] ^ Eq);
+    //         2'b10: Flag = (Funct3E[0] ^ Lt);
+    //         2'b11: Flag = (Funct3E[0] ^ Lt);
+    //         default: Flag = 0;
+    //     endcase
+    // end
 
-    assign PCSrc = BranchE & Flag | JumpE;
+    // assign PCSrc = BranchE & Flag | JumpE;
 
     assign IsAdd = (!((Funct7b5) | (&Funct3))) & (Op == 7'b0110011);
     assign IsBranch = Branch;
     //need fix
-    assign IsBranchTaken = Branch & Flag;
+    // assign IsBranchTaken = Branch & Flag;
     assign IsJump = Jump;
     assign IsStore = (Op == 7'b0100011);
     assign IsLoad = (Op == 7'b0000011);
@@ -108,20 +107,20 @@ end
     // MemWrite logic
     //assign WriteByteEn = {(4){MemWrite}}; // currently assigns all 4 bytes to MemWrite
 
-    always_comb begin
-        WriteByteEn = 4'b0000;
+    // always_comb begin
+    //     WriteByteEn = 4'b0000;
 
-        if (MemWrite === 1'b1) begin
-            casez ({Funct3E[1:0], IEUAdr})
-                4'b10_??: WriteByteEn = 4'b1111; // sw
-                4'b01_0?: WriteByteEn = 4'b0011; // sh
-                4'b01_1?: WriteByteEn = 4'b1100;
-                4'b00_00: WriteByteEn = 4'b0001; // sb
-                4'b00_01: WriteByteEn = 4'b0010;
-                4'b00_10: WriteByteEn = 4'b0100;
-                4'b00_11: WriteByteEn = 4'b1000;
-                default: WriteByteEn = 4'b0;
-            endcase
-        end
-    end
+    //     if (MemWrite === 1'b1) begin
+    //         casez ({Funct3E[1:0], IEUAdr[1:0]})
+    //             4'b10_??: WriteByteEn = 4'b1111; // sw
+    //             4'b01_0?: WriteByteEn = 4'b0011; // sh
+    //             4'b01_1?: WriteByteEn = 4'b1100;
+    //             4'b00_00: WriteByteEn = 4'b0001; // sb
+    //             4'b00_01: WriteByteEn = 4'b0010;
+    //             4'b00_10: WriteByteEn = 4'b0100;
+    //             4'b00_11: WriteByteEn = 4'b1000;
+    //             default: WriteByteEn = 4'b0;
+    //         endcase
+    //     end
+    // end
 endmodule

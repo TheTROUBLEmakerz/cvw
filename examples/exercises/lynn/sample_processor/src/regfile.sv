@@ -26,6 +26,14 @@ module regfile(
                 rf[A3] <= WD3;
         end
 
-    assign RD1 = (A1 != 0) ? rf[A1] : 0;
-    assign RD2 = (A2 != 0) ? rf[A2] : 0;
+    // assign RD1 = (A1 != 0) ? rf[A1] : 0;
+    // assign RD2 = (A2 != 0) ? rf[A2] : 0;
+
+    assign RD1 = (A1 == 0) ? 32'b0 :
+             (WE3 && (A1 == A3) && (A3 != 0)) ? WD3 :
+             rf[A1];
+
+    assign RD2 = (A2 == 0) ? 32'b0 :
+             (WE3 && (A2 == A3) && (A3 != 0)) ? WD3 :
+             rf[A2];
 endmodule

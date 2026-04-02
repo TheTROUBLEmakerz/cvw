@@ -34,14 +34,14 @@ module ieu(
     logic  [1:0]  ALUSrc;
     logic  [2:0]  ImmSrcD;
     logic  [1:0]  ALUControl;
-    logic         IsMul, Funct7b5E;
+    logic         IsMul, Funct7b5E, MemWrite, MemWriteE, Flag;
     logic  [31:0] PCE;
 
     logic         MemEn, ALUResultSrcE;
     logic  [1:0]  ALUSrcE,ALUControlE;
 
     controller c(.JumpE, .BranchE, .IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
-        .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc(PCSrcE), .Funct7(InstrD[31:25]), .IsMul, .Jump, .Branch, .Funct3E,
+        .ALUResultSrc, .ResultSrc, .Funct7(InstrD[31:25]), .IsMul, .Jump, .Branch, .Funct3E, .MemWrite,
         .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc
     `ifdef DEBUG
         , .insn_debug(InstrD)
@@ -57,9 +57,35 @@ module ieu(
 
 
     decodereg decodereg(.BranchE, .Branch, .clk, .reset, .FlushE, .noStallE(~StallE), .RegWrite, .MemRW(MemEn), .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1(Rd1D), .Rd2(Rd2D), .ImmExt(ImmExtD), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .RdD(InstrD[11:7]), .Rs1D(InstrD[19:15]), .Rs2D(InstrD[24:20]),
-                        .RegWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .RdE, .Rs1E, .Rs2E);
+                        .RegWriteE, .MemWrite, .MemWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .RdE, .Rs1E, .Rs2E);
 
     datapath dp(.clk, .reset, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .ALUControlE, .Eq, .Lt, .PCE, .IEUAdrE, .FSrcBE, .IEUResultE, .CSRout, .IsMul, .ALUResultSrcE, .JumpE, .ALUSrcE, .IEUResultM, .ResultW, .ForwardAE, .ForwardBE);
     mux3 #(32) resultmux(IEUResultW, ReadDataW, CSRW, ResultSrcW, ResultW);
 
+    always_comb begin
+        WriteByteEn = 4'b0000;
+
+        if (MemWriteE === 1'b1) begin
+            casez ({Funct3E[1:0], IEUAdrE[1:0]})
+                4'b10_??: WriteByteEn = 4'b1111; // sw
+                4'b01_0?: WriteByteEn = 4'b0011; // sh
+                4'b01_1?: WriteByteEn = 4'b1100;
+                4'b00_00: WriteByteEn = 4'b0001; // sb
+                4'b00_01: WriteByteEn = 4'b0010;
+                4'b00_10: WriteByteEn = 4'b0100;
+                4'b00_11: WriteByteEn = 4'b1000;
+                default: WriteByteEn = 4'b0;
+            endcase
+        end
+    end
+    always_comb
+    begin
+        case(Funct3E[2:1])
+            2'b00: Flag = (Funct3E[0] ^ Eq);
+            2'b10: Flag = (Funct3E[0] ^ Lt);
+            2'b11: Flag = (Funct3E[0] ^ Lt);
+            default: Flag = 0;
+        endcase
+    end
+    assign PCSrcE = (BranchE & Flag) | JumpE;
 endmodule
