@@ -26,7 +26,7 @@ module ieu(
     );
 
     logic [31:0]    Rd1D, Rd1E, Rd2D, Rd2E;
-    logic RegWrite, Jump, Eq, ALUResultSrc, Lt;
+    logic RegWrite, Jump, Eq, ALUResultSrc, Lt, JumpE, BranchE;
     logic  [31:0] ImmExtD, ImmExtE, ResultW;
     logic  [1:0]  ResultSrc;
     logic  [1:0]  ALUSrc;
@@ -39,7 +39,7 @@ module ieu(
     logic         RegWriteE, MemEn, ALUResultSrcE, JumpE;
     logic  [1:0]  ResultSrcE, ALUSrcE,ALUControlE;
 
-    controller c(.IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
+    controller c(.JumpE, ,BranchE, .IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
         .ALUResultSrc, .ResultSrc, .WriteByteEn, .PCSrc(PCSrcE), .Funct7(InstrD[31:25]), .IsMul, .Jump,
         .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc
     `ifdef DEBUG

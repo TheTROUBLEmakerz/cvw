@@ -19,16 +19,16 @@ module controller(
         output  logic [2:0]   ImmSrc,
         output  logic [1:0]   ALUControl,
         output  logic         MemEn,
-        output  logic         Jump,
+        output  logic         Jump, Branch,
         output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
-        output  logic         IsMul
+        output  logic         IsMul,
+        input   logic         JumpE, BranchE
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
     `endif
     );
     logic Flag;
 
-    logic Branch;
     logic Sub, ALUOp;
     logic MemWrite;
     logic [13:0] controls;
@@ -94,10 +94,11 @@ end
         endcase
     end
 
-    assign PCSrc = Branch & Flag | Jump;
+    assign PCSrc = BranchE & Flag | JumpE;
 
     assign IsAdd = (!((Funct7b5) | (&Funct3))) & (Op == 7'b0110011);
     assign IsBranch = Branch;
+    //need fix
     assign IsBranchTaken = Branch & Flag;
     assign IsJump = Jump;
     assign IsStore = (Op == 7'b0100011);
