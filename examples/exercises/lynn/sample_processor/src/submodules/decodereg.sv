@@ -3,23 +3,25 @@
 module decodereg(
         input  logic        clk, reset,
         input  logic        FlushE, noStallE,
-        input  logic        RegWrite, MemRW, ALUResultSrc, Jump, ALUControl,
-        input  logic [1:0]  ResultSrc, ALUSrc,
+        input  logic        RegWrite, MemRW, ALUResultSrc, Jump,
+        input  logic [1:0]  ResultSrc, ALUSrc, ALUControl,
         input  logic [31:0] PCD, Rd1, Rd2, ImmExt,
-        input  logic [2:0]  Funct3, Funct7b5,
-        input  logic [4:0]  RdD,
-        output logic        RegWriteE, ResultSrcE, MemRWE, ALUResultSrcE, JumpE, ALUControlE,
-        output logic [1:0]  ALUSrcE,
+        input  logic [2:0]  Funct3,
+        input  logic        Funct7b5,
+        input  logic [4:0]  RdD,Rs1D, Rs2D,
+        output logic        RegWriteE, MemRWE, ALUResultSrcE, JumpE,
+        output logic [1:0]  ALUSrcE, ALUControlE, ResultSrcE,
         output logic [31:0] PCE, Rd1E, Rd2E, ImmExtE,
-        output logic [2:0]  Funct3E, Funct7b5E,
-        output logic [4:0]  RdE
+        output logic [2:0]  Funct3E,
+        output logic        Funct7b5E,
+        output logic [4:0]  RdE, Rs1E, Rs2E
     );
 
-    logic QRegWrite, QMemRW, QALUResultSrc, QJump, QALUControl, QFunct7;
-    logic [1:0] QResultSrc, QALUSrc;
+    logic QRegWrite, QMemRW, QALUResultSrc, QJump, QFunct7;
+    logic [1:0] QResultSrc, QALUSrc, QALUControl;
     logic [31:0] QPC, QRd1, QRd2, QImmExt;
     logic [2:0] QFunct3;
-    logic [4:0] QRd;
+    logic [4:0] QRd, QRs1, QRs2;
 
     mux2 #(1) RegWritemux(RegWriteE, (RegWrite & ~flush), noStall, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteE));
@@ -62,5 +64,11 @@ module decodereg(
 
     mux2 #(5) Rdmux(RdE, (RdD & {5{~flush}}), noStall, QRd);
     flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdE));
+
+    mux2 #(5) Rs1mux(Rs1E, (Rs1D & {5{~flush}}), noStall, QRs1);
+    flopr #(5) Rs1reg(.clk, .reset, .D(QRs1), .Q(Rs1E));
+
+    mux2 #(5) Rs2mux(Rs2E, (Rs2D & {5{~flush}}), noStall, QRs2);
+    flopr #(5) Rs2reg(.clk, .reset, .D(QRs2), .Q(Rs2E));
 
 endmodule

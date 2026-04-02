@@ -8,7 +8,8 @@ module executereg(
         input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE,
         input  logic [2:0]  Funct3E,
         input  logic [4:0]  RdE,
-        output logic        RegWriteM, ResultSrcM, MemRWM,
+        output logic        RegWriteM, MemRWM,
+        output logic [1:0]  ResultSrcM,
         output logic [31:0] IEUResultM, IEUAdrM, FSrcBM,
         output logic [2:0]  Funct3M,
         output logic [4:0]  RdM
@@ -35,7 +36,7 @@ module executereg(
     flopr #(32) IEUAdrreg(.clk, .reset, .D(QIEUAdr), .Q(IEUAdrM));
 
     mux2 #(32) FSrcBmux(FSrcBM, (FSrcBE & {32{~flush}}), noStall, QFSrcB);
-    flopr #(32) FSrcBreg(.clk, .reset, .D(QResultSrc), .Q(FSrcBM));
+    flopr #(32) FSrcBreg(.clk, .reset, .D(QFSrcB), .Q(FSrcBM));
 
     mux2 #(3) Funct3mux(Funct3M, (Funct3E & {3{~flush}}), noStall, QFunct3);
     flopr #(3) Funct3reg(.clk, .reset, .D(QFunct3), .Q(Funct3M));

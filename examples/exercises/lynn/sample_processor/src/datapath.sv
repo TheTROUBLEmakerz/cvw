@@ -10,14 +10,14 @@ module datapath(
         input   logic [1:0]     ALUControlE, //
         output  logic           Eq, Lt, //
         input   logic [31:0]    PCE, //
-        output  logic [31:0]    IEUAdrE, FSrcBE, IEUResultE, WriteData,//
+        output  logic [31:0]    IEUAdrE, FSrcBE, IEUResultE, //
         input   logic [31:0]    CSRout,
         input   logic           IsMul,
         input   logic           ALUResultSrcE, JumpE,//
-        input   logic  [1:0]    ALUSrcE, //
+        input   logic [1:0]     ALUSrcE, //
 
-        input   logic  [31:0]   IEUResultM, ResultW, //
-        input   logic           ForwardAE, ForwardBE //
+        input   logic [31:0]    IEUResultM, ResultW, //
+        input   logic [1:0]     ForwardAE, ForwardBE //
     );
 
     logic [31:0] FSrcAE, SrcAE, SrcBE, PCLinkE, ALUResultE, AltResultE;
@@ -44,7 +44,7 @@ module datapath(
 
 
 /////////////////////////////////
-    mux2 #(32) mulmux(ALUResult, MulResult, IsMul, ExecResult); // look later
+    // mux2 #(32) mulmux(ALUResult, MulResult, IsMul, ExecResult); // look later
 
 
     // move this part to ieu
@@ -52,13 +52,4 @@ module datapath(
     // ext2 ext2(Funct3, IEUAdr[2:0], ReadData, ImmLoad); // this is for load/store
     // assign WriteData = FSrcBE;
     // load store unit stuff need to be fixed
-    always_comb
-    begin
-        case(Funct3E[1:0])
-            2'b10: WriteData = FSrcBE;
-            2'b01: WriteData = {FSrcBE[15:0], FSrcBE[15:0]};
-            2'b00: WriteData = {4{FSrcBE[7:0]}};
-            default: WriteData = 32'b0;
-        endcase
-    end
 endmodule

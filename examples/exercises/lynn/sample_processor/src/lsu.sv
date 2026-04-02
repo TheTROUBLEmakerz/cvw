@@ -7,23 +7,26 @@ module lsu(
         output  logic [31:0]    IEUAdr, WriteData,
         output  logic [2:0]     Funct3M,
 
-        input   logic [31:0]    FSrcBE, RdE, IEUResultE, IEUAdrE,
+        input   logic [31:0]    FSrcBE, IEUResultE, IEUAdrE,
         input   logic [2:0]     Funct3E,
         input   logic           RegWriteE, MemRWE,
         input   logic [1:0]     ResultSrcE,
         input   logic           StallM, FlushM, StallW, FlushW,
-        input   logic [31:0]    MDU,
-        output  logic [31:0]    IEUResultW, ReadDataW, RdW,
+        input   logic [31:0]    CSR,
+        input   logic [4:0]     RdE,
+        output  logic [31:0]    IEUResultW, ReadDataW,
+        output  logic [4:0]     RdW,
         output  logic           RegWriteW,
         output  logic [1:0]     ResultSrcW,
         output  logic           MemEn,
-        output  logic [31:0]    MDUW
+        output  logic [31:0]    CSRW
         // fill in
     );
 
     logic        RegWriteM;
     logic [1:0]  ResultSrcM;
-    logic [31:0] IEUResultM, FSrcBM, ReadDataM, RdM;
+    logic [31:0] IEUResultM, FSrcBM, ReadDataM;
+    logic [4:0]  RdM;
     executereg executereg(.clk, .reset, .FlushM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE,
                         .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM);
 
@@ -40,7 +43,7 @@ module lsu(
     end
 
 
-    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .MDU, .IEUResultM,
-                        .ReadDataM, .RegWriteW, .ResultSrcW, .MDUW, .IEUResultW, .ReadDataW);
+    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .CSR, .IEUResultM,
+                        .ReadDataM, .RegWriteW, .ResultSrcW, .CSRW, .IEUResultW, .ReadDataW);
 
 endmodule

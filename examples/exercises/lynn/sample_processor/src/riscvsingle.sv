@@ -26,23 +26,22 @@ module riscvsingle (
     logic [31:0] PCD;
     logic [31:0] InstrD;
     logic [31:0] IEUAdrE, IEUResultE, IEUResultM, IEUResultW, ReadDataW;
-    logic [31:0] Rs1D, Rs1E, Rs2D, Rs2E;
+    // logic [31:0] Rd1D, Rd1E, Rd2D, Rs2E;
     logic StallF, FlushD, StallD, FlushE, StallE, FlushM, StallM, FlushW, StallW;
-    logic ForwardAE, ForwardBE;
-    logic RegWriteW, RegWriteM, ResultSrcM, RegWriteE, ResultSrcE;
-    logic [4:0] RdW, RdE, RdM;
-    logic [31:0] MDUW, MDU;
-    logic FSrcBE;
+    logic [1:0] ForwardAE, ForwardBE;
+    logic RegWriteW, RegWriteM, RegWriteE;
+    logic [1:0] ResultSrcM, ResultSrcE, ResultSrcW;
+    logic [4:0] RdW, RdE, RdM, Rs1E, Rs2E;
+    logic [31:0] CSRW, CSR;
+    logic [31:0] FSrcBE;
     logic [2:0] Funct3M, Funct3E;
-    logic [1:0] ResultSrcW;
 
     ifu ifu(.clk, .reset, .PCSrcE, .IEUAdrE, .PC, .StallF);
     fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF(PC), .InstrF(Instr), .PCD, .InstrD);
-    ieu ieu(.clk, .reset, .StallE, .FlushE, .ForwardAE, .ForwardBE, .InstrD, .CSRout, .PCD, .PCSrcE, .WriteByteEn, .RegWriteW, .ResultSrcW, .IEUResultM, .IEUResultW, .ReadDataW, .RdW, .IEUAdrE, .WriteData, .IEUResultE, .ReadData, .MDUW, .MemEn, .FSrcBE,
-            .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc, .RdE, .Rs2E, .Rs2D, .Rs1E, .Rs1D);
-    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .MDU, .IEUResultM, .ReadDataM(ReadData), .RegWriteW, .ResultSrcW, .MDUW, .IEUResultW, .ReadDataW);
-    lsu lsu(.clk, .reset, .Funct3E, .IEUAdrE, .IEUResultE, .RdE, .FSrcBE, .ReadData, .IEUAdr, .WriteData, .Funct3M, .RegWriteE, .MemRWE, .ResultSrcE, .StallM, .FlushM, .StallW, .FlushW, .MDU, .IEUResultW, .ReadDataW, .RdW, .RegWriteW, .ResultSrcW, .MemEn, .MDUW);
-    CSR CSR(.clk, .reset, .CSRAddress(Instr[31:20]), .CSRout, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc);
+    ieu ieu(.clk, .reset, .StallE, .FlushE, .ForwardAE, .ForwardBE, .InstrD, .CSRout, .PCD, .PCSrcE, .WriteByteEn, .RegWriteW, .ResultSrcW, .IEUResultM, .IEUResultW, .ReadDataW, .RdW, .IEUAdrE, .IEUResultE, .ReadData, .CSRW, .MemRWE, .FSrcBE,
+            .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc, .RdE, .Rs2E, .Rs1E);
+    lsu lsu(.clk, .reset, .Funct3E, .IEUAdrE, .IEUResultE, .RdE, .FSrcBE, .ReadData, .IEUAdr, .WriteData, .Funct3M, .RegWriteE, .MemRWE, .ResultSrcE, .StallM, .FlushM, .StallW, .FlushW, .CSR, .IEUResultW, .ReadDataW, .RdW, .RegWriteW, .ResultSrcW, .MemEn, .CSRW);
+    CSR CSRmodule(.clk, .reset, .CSRAddress(Instr[31:20]), .CSRout, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc);
     assign WriteEn = |WriteByteEn;
-    hazard hazard(.Rs1D, .Rs2D, .Rs1E, .Rs2E, .RdE, .PCSrcE, .ResultSrcE0(ResultSrcE), .RdM, .RegWriteM, .RegWriteW, .StallF, .StallD, .FlushD, .FlushE, .ForwardAE, .ForwardBE, .FlushW, .StallW, .FlushM, .StallM, .StallE, .RdW);
+    hazard hazard(.Rs1D(InstrD[19:15]), .Rs2D(InstrD[24:20]), .Rs1E, .Rs2E, .RdE, .PCSrcE, .ResultSrcE0(ResultSrcE[0]), .RdM, .RegWriteM, .RegWriteW, .StallF, .StallD, .FlushD, .FlushE, .ForwardAE, .ForwardBE, .FlushW, .StallW, .FlushM, .StallM, .StallE, .RdW);
 endmodule
