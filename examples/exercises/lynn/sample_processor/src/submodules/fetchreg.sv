@@ -9,11 +9,11 @@ module fetchreg(
     logic [31:0] Qmid1, Qmid2;
 
     // pass PC
-    mux2 #(32) PCmux(PCD, (PCF & {32{~flush}}), noStall, Qmid1);
+    mux2 #(32) PCmux(PCD, (PCF & {32{~FlushD}}), noStallD, Qmid1);
     flopr #(32) PCreg(.clk, .reset, .D(Qmid1), .Q(PCD));
 
     // pass Instr
-    mux2 #(32) Instrmux(InstrD, (InstrF & {32{~flush}}), noStall, Qmid2);
+    mux2 #(32) Instrmux(InstrD, (InstrF & {32{~FlushD}}), noStallD, Qmid2);
     flopr #(32) Instrreg(.clk, .reset, .D(Qmid2), .Q(InstrD));
 
 endmodule

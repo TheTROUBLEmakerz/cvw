@@ -1,4 +1,4 @@
-// pipelined register that takes in a flush and stall input
+// pipelined register that takes in a FlushW and stall input
 
 module memoryreg(
         input  logic        clk, reset,
@@ -15,19 +15,19 @@ module memoryreg(
     logic [1:0] QResultSrc;
     logic [31:0] QCSR, QIEUResult, QReadData;
 
-    mux2 #(1) RegWritemux(RegWriteW, (RegWriteM & ~flush), noStall, QRegWrite);
+    mux2 #(1) RegWritemux(RegWriteW, (RegWriteM & ~FlushW), noStallW, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteW));
 
-    mux2 #(2) ResultSrcmux(ResultSrcW, (ResultSrcM & {2{~flush}}), noStall, QResultSrc);
+    mux2 #(2) ResultSrcmux(ResultSrcW, (ResultSrcM & {2{~FlushW}}), noStallW, QResultSrc);
     flopr #(2) ResultSrcreg(.clk, .reset, .D(QResultSrc), .Q(ResultSrcW));
 
-    mux2 #(32) CSRmux(CSRW, (CSR & {32{~flush}}), noStall, QCSR);
+    mux2 #(32) CSRmux(CSRW, (CSR & {32{~FlushW}}), noStallW, QCSR);
     flopr #(32) CSRreg(.clk, .reset, .D(QCSR), .Q(CSRW));
 
-    mux2 #(32) IEUResultmux(IEUResultW, (IEUResultM & {32{~flush}}), noStall, QIEUResult);
+    mux2 #(32) IEUResultmux(IEUResultW, (IEUResultM & {32{~FlushW}}), noStallW, QIEUResult);
     flopr #(32) IEUResultreg(.clk, .reset, .D(QIEUResult), .Q(IEUResultW));
 
-    mux2 #(32) ReadDatamux(ReadDataW, (ReadDataM & {32{~flush}}), noStall, QReadData);
+    mux2 #(32) ReadDatamux(ReadDataW, (ReadDataM & {32{~FlushW}}), noStallW, QReadData);
     flopr #(32) ReadDatareg(.clk, .reset, .D(QReadData), .Q(ReadDataW));
 
 endmodule
