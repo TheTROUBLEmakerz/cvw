@@ -2,7 +2,7 @@
 
 module executereg(
         input  logic        clk, reset,
-        input  logic        FlushM, noStallMM,
+        input  logic        FlushM, noStallM,
         input  logic        RegWriteE, MemRWE,
         input  logic [1:0]  ResultSrcE,
         input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE,
