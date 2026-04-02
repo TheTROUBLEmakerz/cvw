@@ -13,7 +13,7 @@ module ieu(
         input   logic [31:0]    InstrD, CSRout,
         input   logic [31:0]    PCD,
         output  logic           PCSrcE,
-        output  logic [3:0]     WriteByteEn,
+        output  logic [3:0]     WriteByteEnE,
         input   logic           RegWriteW,
         input   logic [1:0]     ResultSrcW,
         input   logic [31:0]    IEUResultM, IEUResultW, ReadDataW,
@@ -65,18 +65,18 @@ module ieu(
     mux4 #(32) resultmux(IEUResultW, ReadDataW, ImmExtW, CSRW, ResultSrcW, ResultW);
 
     always_comb begin
-        WriteByteEn = 4'b0000;
+        WriteByteEnE = 4'b0000;
 
         if (MemWriteE === 1'b1) begin
             casez ({Funct3E[1:0], IEUAdrE[1:0]})
-                4'b10_??: WriteByteEn = 4'b1111; // sw
-                4'b01_0?: WriteByteEn = 4'b0011; // sh
-                4'b01_1?: WriteByteEn = 4'b1100;
-                4'b00_00: WriteByteEn = 4'b0001; // sb
-                4'b00_01: WriteByteEn = 4'b0010;
-                4'b00_10: WriteByteEn = 4'b0100;
-                4'b00_11: WriteByteEn = 4'b1000;
-                default: WriteByteEn = 4'b0;
+                4'b10_??: WriteByteEnE = 4'b1111; // sw
+                4'b01_0?: WriteByteEnE = 4'b0011; // sh
+                4'b01_1?: WriteByteEnE = 4'b1100;
+                4'b00_00: WriteByteEnE = 4'b0001; // sb
+                4'b00_01: WriteByteEnE = 4'b0010;
+                4'b00_10: WriteByteEnE = 4'b0100;
+                4'b00_11: WriteByteEnE = 4'b1000;
+                default: WriteByteEnE = 4'b0;
             endcase
         end
     end

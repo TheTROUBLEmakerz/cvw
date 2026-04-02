@@ -14,20 +14,23 @@ module lsu(
         input   logic           StallM, FlushM, StallW, FlushW,
         input   logic [31:0]    CSRE, ImmExtE,
         input   logic [4:0]     RdE,
+        input   logic [3:0]     WriteByteEn,
         output  logic [31:0]    IEUResultW, ReadDataW,
         output  logic [4:0]     RdW,RdM,
         output  logic           RegWriteW, RegWriteM,
         output  logic [1:0]     ResultSrcW,
         output  logic           MemEn,
-        output  logic [31:0]    CSRW, ResultM, ImmExtW
+        output  logic [31:0]    CSRW, ResultM, ImmExtW,
+        output  logic [3:0]     WriteByteEnM
         // fill in
     );
 
 
     logic [1:0]  ResultSrcM;
+
     logic [31:0] FSrcBM, ReadDataM, CSRM, ImmExtM, IEUResultM;
     executereg executereg(.clk, .reset, .FlushM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE, .ImmExtE, .ImmExtM,
-                        .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM, .CSRE, .CSRM);
+                        .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM, .CSRE, .CSRM, .WriteByteEn, .WriteByteEnM);
 
     ext2 ext2(Funct3M, IEUAdr[2:0], ReadData, ReadDataM); // this is for load/store
 
