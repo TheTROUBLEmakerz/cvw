@@ -5,20 +5,22 @@ module executereg(
         input  logic        FlushM, noStallM,
         input  logic        RegWriteE, MemRWE, ValidE,
         input  logic [1:0]  ResultSrcE,
-        input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE, CSRE,ImmExtE,
+        input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE, CSRE,ImmExtE, MulResult,
         input  logic [2:0]  Funct3E,
         input  logic [4:0]  RdE,
         input  logic [3:0]  WriteByteEn,
+        input  logic        IsMulE,
         output logic        RegWriteM, MemRWM, ValidM,
         output logic [1:0]  ResultSrcM,
-        output logic [31:0] IEUResultM, IEUAdrM, FSrcBM, CSRM, ImmExtM,
+        output logic [31:0] IEUResultM, IEUAdrM, FSrcBM, CSRM, ImmExtM, MulResultM,
         output logic [2:0]  Funct3M,
         output logic [4:0]  RdM,
-        output logic [3:0]  WriteByteEnM
+        output logic [3:0]  WriteByteEnM,
+        output logic        IsMulM
     );
-    logic QRegWrite, QMemRW, QValid;
+    logic QRegWrite, QMemRW, QValid, QMul;
     logic [1:0] QResultSrc;
-    logic [31:0] QIEUResult, QIEUAdr, QFSrcB, QCSR, QImmExt;
+    logic [31:0] QIEUResult, QIEUAdr, QFSrcB, QCSR, QImmExt, QMulResult;
     logic [2:0] QFunct3;
     logic [4:0] QRd;
     logic [3:0] QWriteByte;
@@ -32,11 +34,17 @@ module executereg(
     mux2 #(1) Validmux(ValidM, (ValidE & ~FlushM), noStallM, QValid);
     flopr #(1) Validreg(.clk, .reset, .D(QValid), .Q(ValidM));
 
+    mux2 #(1) Mulmux(IsMulM, (IsMulE & ~FlushM), noStallM, QMul);
+    flopr #(1) Mulreg(.clk, .reset, .D(QMul), .Q(IsMulM));
+
     mux2 #(2) ResultSrcmux(ResultSrcM, (ResultSrcE & {2{~FlushM}}), noStallM, QResultSrc);
     flopr #(2) ResultSrcreg(.clk, .reset, .D(QResultSrc), .Q(ResultSrcM));
 
     mux2 #(32) IEUResultmux(IEUResultM, (IEUResultE & {32{~FlushM}}), noStallM, QIEUResult);
     flopr #(32) IEUResultreg(.clk, .reset, .D(QIEUResult), .Q(IEUResultM));
+
+    mux2 #(32) MulResultmux(MulResultM, (MulResult & {32{~FlushM}}), noStallM, QMulResult);
+    flopr #(32) MulResultreg(.clk, .reset, .D(QMulResult), .Q(MulResultM));
 
     mux2 #(32) IEUAdrmux(IEUAdrM, (IEUAdrE & {32{~FlushM}}), noStallM, QIEUAdr);
     flopr #(32) IEUAdrreg(.clk, .reset, .D(QIEUAdr), .Q(IEUAdrM));

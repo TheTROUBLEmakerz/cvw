@@ -1,7 +1,7 @@
 module multiplier (
     input  logic [31:0] R1,
     input  logic [31:0] R2,
-    input  logic [2:0]  funct3,
+    input  logic [2:0]  Funct3,
     output logic [31:0] MulResult
 );
 
@@ -30,7 +30,7 @@ module multiplier (
         // Default
         MulResult = 32'b0;
 
-        unique case (funct3)
+        case (Funct3)
             3'b000: MulResult = prod_ss[31:0];   // mul
             3'b001: MulResult = prod_ss[63:32];  // mulh
             3'b010: MulResult = prod_su[63:32];  // mulhsu

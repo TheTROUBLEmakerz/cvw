@@ -12,27 +12,21 @@ module controller(
         input   logic         Funct7b5,
         output  logic         ALUResultSrc,
         output  logic [1:0]   ResultSrc,
-        // output  logic [3:0]   WriteByteEn,
-        // output  logic         PCSrc,
         output  logic         RegWrite,
         output  logic [1:0]   ALUSrc,
         output  logic [2:0]   ImmSrc,
         output  logic [1:0]   ALUControl,
         output  logic         MemEn,MemWrite,
         output  logic         Jump, Branch,
-        // output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
-        // output  logic         IsMul,
+        output  logic         IsMul,
         input   logic         JumpE, BranchE
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
     `endif
     );
     logic Flag;
-
     logic Sub, ALUOp;
     logic [13:0] controls;
-
-
 
     // Main decoder
     always_comb
@@ -71,56 +65,10 @@ module controller(
                | (Funct3 == 3'b011) );                   // sltu//assign Sub = ALUOp & ((Funct3 == 3'b000) & Funct7b5 & Op[5]);
     assign ALUControl = {Sub, ALUOp};
 
-    // always_comb begin
-//   IsMul = 1'b0;
-
-  // Only assert when opcode/funct7/funct3 are DEFINITELY matching
-//   if (Op    === 7'b0110011 &&
-//       Funct7=== 7'b0000001 &&
-//       (Funct3 === 3'b000 || Funct3 === 3'b001 || Funct3 === 3'b010 || Funct3 === 3'b011)) begin
-//     IsMul = 1'b1;
-//   end
-// end
-    // PCSrc logic
-
-    // always_comb
-    // begin
-    //     case(Funct3E[2:1])
-    //         2'b00: Flag = (Funct3E[0] ^ Eq);
-    //         2'b10: Flag = (Funct3E[0] ^ Lt);
-    //         2'b11: Flag = (Funct3E[0] ^ Lt);
-    //         default: Flag = 0;
-    //     endcase
-    // end
-
-    // assign PCSrc = BranchE & Flag | JumpE;
-
-    // assign IsAdd = (!((Funct7b5) | (&Funct3))) & (Op == 7'b0110011);
-    // assign IsBranch = Branch;
-    // //need fix
-    // // assign IsBranchTaken = Branch & Flag;
-    // assign IsJump = Jump;
-    // assign IsStore = (Op == 7'b0100011);
-    // assign IsLoad = (Op == 7'b0000011);
-    // assign IsLui = (Op == 7'b0110111);
-    // assign IsAuipc = (Op == 7'b0010111);
-    // MemWrite logic
-    //assign WriteByteEn = {(4){MemWrite}}; // currently assigns all 4 bytes to MemWrite
-
-    // always_comb begin
-    //     WriteByteEn = 4'b0000;
-
-    //     if (MemWrite === 1'b1) begin
-    //         casez ({Funct3E[1:0], IEUAdr[1:0]})
-    //             4'b10_??: WriteByteEn = 4'b1111; // sw
-    //             4'b01_0?: WriteByteEn = 4'b0011; // sh
-    //             4'b01_1?: WriteByteEn = 4'b1100;
-    //             4'b00_00: WriteByteEn = 4'b0001; // sb
-    //             4'b00_01: WriteByteEn = 4'b0010;
-    //             4'b00_10: WriteByteEn = 4'b0100;
-    //             4'b00_11: WriteByteEn = 4'b1000;
-    //             default: WriteByteEn = 4'b0;
-    //         endcase
-    //     end
-    // end
+    always_comb begin
+        if (Op    === 7'b0110011 && Funct7=== 7'b0000001 && Funct3[2] === 1'b0)
+            IsMul = 1'b1;
+        else
+            IsMul = 1'b0;
+    end
 endmodule
