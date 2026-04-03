@@ -9,7 +9,7 @@ module controller(
         input   logic [6:0]   Op, Funct7,
         input   logic         Lt, Eq,
         input   logic [2:0]   Funct3, Funct3E,
-        input   logic         Funct7b5,
+        input   logic         Funct7b5, MSB,
         output  logic         ALUResultSrc,
         output  logic [1:0]   ResultSrc,
         // output  logic [3:0]   WriteByteEn,
@@ -22,6 +22,7 @@ module controller(
         output  logic         Jump, Branch,
         // output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
         // output  logic         IsMul,
+        output  logic         BranchPr,
         input   logic         JumpE, BranchE
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
@@ -33,7 +34,7 @@ module controller(
     logic [13:0] controls;
 
 
-
+    assign BranchPr = (Op == 7'b1100011) && MSB;
     // Main decoder
     always_comb
         case(Op)

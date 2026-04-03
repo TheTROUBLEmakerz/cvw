@@ -3,7 +3,7 @@
 module hazard(
         input  logic [4:0]  Rs1D, Rs2D,Rs1E, Rs2E,
         input  logic [4:0]  RdE,
-        input  logic        PCSrcE,
+        input  logic        MisPredictE, BranchPrD,
         input  logic [1:0]  ResultSrcE,
         input  logic [4:0]  RdM, RdW,
         input  logic        RegWriteM, RegWriteW,
@@ -39,7 +39,7 @@ module hazard(
     assign StallW = 0;
     assign FlushW = 0;
 
-    assign FlushD = PCSrcE; //
-    assign FlushE = lwStall | PCSrcE;
+    assign FlushD = MisPredictE | BranchPrD; //
+    assign FlushE = lwStall | MisPredictE;
 
 endmodule
