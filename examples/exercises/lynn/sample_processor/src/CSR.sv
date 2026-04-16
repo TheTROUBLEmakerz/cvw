@@ -35,7 +35,7 @@ module CSR(
                 rdtime  <= rdtime + 1;
                 if (InsnRetired)
                     rdinsret <= rdinsret + 1;
-                // wait so confused isnt number of cycles and instructions retired da same
+                // add back later
                 // hpm3    <= hpm3 + {{63{1'b0}}, IsAdd};
                 // hpm4    <= hpm4 + {{63{1'b0}}, IsBranch};
                 // hpm5    <= hpm5 + {{63{1'b0}}, IsBranchTaken};
