@@ -3,16 +3,12 @@
 module fetchreg(
         input  logic        clk, reset,
         input  logic        FlushD, noStallD,
-        input  logic [31:0] PCF, InstrF, PCPlus4F,
-        output logic [31:0] PCD, InstrD, PCPlus4D,
+        input  logic [31:0] PCF, InstrF,
+        output logic [31:0] PCD, InstrD,
         output logic        ValidD
     );
-    logic [31:0] Qmid1, Qmid2, QPCPlus4;
+    logic [31:0] Qmid1, Qmid2;
     logic QValid;
-
-    // pass PC
-    mux2 #(32) PCPlus4mux(PCPlus4D, (PCPlus4F & {32{~FlushD}}), noStallD, QPCPlus4);
-    flopr #(32) PCPlus4reg(.clk, .reset, .D(QPCPlus4), .Q(PCPlus4D));
 
     mux2 #(32) PCmux(PCD, (PCF & {32{~FlushD}}), noStallD, Qmid1);
     flopr #(32) PCreg(.clk, .reset, .D(Qmid1), .Q(PCD));

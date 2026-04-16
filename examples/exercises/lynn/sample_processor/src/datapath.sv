@@ -10,7 +10,7 @@ module datapath(
         input   logic [1:0]     ALUControlE, //
         output  logic           Eq, Lt, //
         input   logic [31:0]    PCE, //
-        output  logic [31:0]    IEUAdrE, FSrcBE, FSrcAE, IEUResultE, //
+        output  logic [31:0]    IEUAdrE, FSrcBE, FSrcAE, IEUResultE, PCLinkE,//
         // input   logic           IsMul,
         input   logic           ALUResultSrcE, JumpE,//
         input   logic [1:0]     ALUSrcE, //
@@ -19,7 +19,7 @@ module datapath(
         input   logic [1:0]     ForwardAE, ForwardBE //
     );
 
-    logic [31:0] SrcAE, SrcBE, PCLinkE, ALUResultE, AltResultE;
+    logic [31:0] SrcAE, SrcBE, ALUResultE, AltResultE;
     logic [31:0] MulResult, CalcOut; //for mult unit
     logic [31:0] ExecResult;  // ALUResult with optional MUL override
 
