@@ -26,7 +26,7 @@ module lsu(
     );
 
     logic ValidM;
-    logic [1:0]  ResultSrcM, ForwardSelM;
+    logic [1:0]  ResultSrcM; //, ForwardSelM;
 
     logic [31:0] FSrcBM, ReadDataM, CSRM, ImmExtM, IEUResultM,extoutM;
     executereg executereg(.clk, .reset, .FlushM, .IsMulE, .IsMulM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE, .ImmExtE, .ImmExtM,
@@ -37,12 +37,12 @@ module lsu(
     // mux2 #(32) extmux(IEUResultM, MulResult, IsMulM, extoutM);
     always_comb begin
     case (ResultSrcM)
-        2'b10: ForwardSelM = 2'b01; // LUI → ImmExtM
-        2'b11: ForwardSelM = 2'b10; // CSR → CSRM
-        default: ForwardSelM = 2'b00; // ALU
+        2'b10: extout = ImmExtM; // LUI → ImmExtM
+        2'b11: extout = CSRM; // CSR → CSRM
+        default: extout = IEUResultM; // ALU
     endcase
     end
-    mux3 #(32) fwdmuxM(IEUResultM, ImmExtM, CSRM, ForwardSelM, extout);
+    // mux3 #(32) fwdmuxM(IEUResultM, ImmExtM, CSRM, ForwardSelM, extout);
 
     // mux4 #(32) resultmuxM(IEUResultM, ReadDataM, ImmExtM, CSRM, ResultSrcM, ResultM);
     always_comb

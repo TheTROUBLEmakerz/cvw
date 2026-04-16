@@ -20,7 +20,7 @@ module riscvsingle (
         output  logic [3:0]     WriteByteEn  // strobes, 1 hot stating weather a byte should be written on a store
     );
 
-    logic [31:0] CSRout, PCE, PCPredict, extout;
+    logic [31:0] CSRout, PCE, extout;
     logic PCSrcE, MemRWE, BranchPrD, MisPredictE;
 //     logic IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc;
     logic [31:0] PCD;
@@ -36,10 +36,10 @@ module riscvsingle (
     logic [2:0] Funct3M, Funct3E;
     logic [3:0] WriteByteEnE;
 
-    ifu ifu(.clk, .reset, .PCSrcE, .IEUAdrE, .PC, .PCLinkE, .StallF, .BranchPr(BranchPrD), .MisPredictE, .PCPredict, .PCD, .ImmExtD);
+    ifu ifu(.clk, .reset, .PCSrcE, .IEUAdrE, .PC, .PCLinkE, .StallF, .BranchPr(BranchPrD), .MisPredictE, .PCD, .ImmExtD);
     fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF(PC), .InstrF(Instr), .PCD, .InstrD, .ValidD);
     ieu ieu(.clk, .reset, .StallE, .IsMulE, .PCLinkE, .ImmExtD, .ImmExtE, .FlushE, .ForwardAE, .ForwardBE, .InstrD, .CSRout, .PCD, .PCSrcE, .WriteByteEnE, .RegWriteW, .ResultSrcW, .extout, .IEUResultW, .ReadDataW, .RdW, .IEUAdrE, .IEUResultE, .ReadData, .CSRW, .MemRWE, .FSrcAE, .FSrcBE,
-             .RdE, .Rs2E, .Rs1E, .Funct3E, .MulResultW, .IsMulW, .RegWriteE, .ResultSrcE, .CSRE, .ValidD, .ValidE, .ImmExtW, .BranchPrD, .MisPredictE, .PCPredict);
+             .RdE, .Rs2E, .Rs1E, .Funct3E, .MulResultW, .IsMulW, .RegWriteE, .ResultSrcE, .CSRE, .ValidD, .ValidE, .ImmExtW, .BranchPrD, .MisPredictE);
     lsu lsu(.clk, .MulResult, .reset, .MulResultW, .IsMulE, .IsMulM, .IsMulW, .Funct3E, .ImmExtE, .IEUAdrE, .ImmExtW, .IEUResultE, .RdE, .RdM, .RegWriteM, .FSrcBE, .ReadData, .IEUAdr, .WriteData, .Funct3M, .RegWriteE, .MemRWE, .ResultSrcE, .StallM, .FlushM, .StallW, .FlushW, .CSRE, .IEUResultW, .ReadDataW, .RdW, .RegWriteW, .ResultSrcW, .MemEn, .CSRW, .extout, .WriteByteEn(WriteByteEnE), .WriteByteEnM(WriteByteEn), .ValidW, .ValidE);
     assign InsnRetired = ValidW & ~StallW;
     CSR CSRmodule(.clk, .reset, .InsnRetired, .CSRAddress(InstrD[31:20]), .CSRout); //.IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc

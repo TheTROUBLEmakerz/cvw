@@ -18,7 +18,7 @@ module ieu(
         input   logic [1:0]     ResultSrcW,
         input   logic [31:0]    extout, IEUResultW, ReadDataW, MulResultW,
         input   logic [4:0]     RdW,
-        output  logic [31:0]    IEUAdrE, IEUResultE, FSrcAE, FSrcBE,ImmExtD, PCPredict,
+        output  logic [31:0]    IEUAdrE, IEUResultE, FSrcAE, FSrcBE,ImmExtD, //PCPredict,
         input   logic [31:0]    ReadData, CSRW, ImmExtW,
         output  logic [31:0]    CSRE,ImmExtE, PCLinkE,
         output  logic           MemRWE, RegWriteE, ValidE, BranchPrD, MisPredictE, IsMulE,
@@ -55,7 +55,7 @@ module ieu(
 
     // immediate extend unit
     extend ext(.Instr(InstrD[31:7]), .ImmSrc(ImmSrcD), .ImmExt(ImmExtD));
-    adder PredictPC(PCD, ImmExtD, PCPredict);
+    // adder PredictPC(PCD, ImmExtD, PCPredict);
 
     decodereg decodereg(.BranchE, .Branch, .clk, .reset, .FlushE, .noStallE(~StallE), .RegWrite, .MemRW(MemEn), .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1(Rd1D), .Rd2(Rd2D), .ImmExt(ImmExtD), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .RdD(InstrD[11:7]), .Rs1D(InstrD[19:15]), .Rs2D(InstrD[24:20]),
                         .RegWriteE, .MemWrite, .MemWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .RdE, .Rs1E, .Rs2E, .CSRD(CSRout), .CSRE, .ValidD, .ValidE, .BranchPr(BranchPrD), .BranchPrE, .IsMul, .IsMulE);
@@ -92,5 +92,5 @@ module ieu(
     end
     assign PCSrcE = (BranchE & Flag) | JumpE;
     assign ActualTakenE = BranchE & Flag;
-    assign MisPredictE  = JumpE | BranchE & (ActualTakenE != BranchPrE); // jump or mispredict
+assign MisPredictE  = JumpE | BranchE & (ActualTakenE != BranchPrE); // jump or mispredict
 endmodule
