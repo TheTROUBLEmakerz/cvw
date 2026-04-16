@@ -19,13 +19,13 @@ module lsu(
         output  logic [4:0]     RdW,RdM,
         output  logic           RegWriteW, RegWriteM,
         output  logic [1:0]     ResultSrcW,
-        output  logic           MemEn, ValidW,
-        output  logic [31:0]    CSRW, ImmExtW,
+        output  logic           MemEn, ValidW, IsMulM, IsMulW,
+        output  logic [31:0]    CSRW, ImmExtW, MulResultW,
         output  logic [3:0]     WriteByteEnM
         // fill in
     );
 
-    logic ValidM, IsMulM;
+    logic ValidM;
     logic [1:0]  ResultSrcM, ForwardSelM;
 
     logic [31:0] FSrcBM, ReadDataM, CSRM, ImmExtM, IEUResultM,extoutM;
@@ -34,15 +34,15 @@ module lsu(
 
     ext2 ext2(Funct3M, IEUAdr[2:0], ReadData, ReadDataM); // this is for load/store
 
-    mux2 #(32) extmux(IEUResultM, MulResult, IsMulM, extoutM);
+    // mux2 #(32) extmux(IEUResultM, MulResult, IsMulM, extoutM);
     always_comb begin
     case (ResultSrcM)
         2'b10: ForwardSelM = 2'b01; // LUI → ImmExtM
         2'b11: ForwardSelM = 2'b10; // CSR → CSRM
-        default: ForwardSelM = 2'b00; // ALU/MUL
+        default: ForwardSelM = 2'b00; // ALU
     endcase
     end
-    mux3 #(32) fwdmuxM(extoutM, ImmExtM, CSRM, ForwardSelM, extout);
+    mux3 #(32) fwdmuxM(IEUResultM, ImmExtM, CSRM, ForwardSelM, extout);
 
     // mux4 #(32) resultmuxM(IEUResultM, ReadDataM, ImmExtM, CSRM, ResultSrcM, ResultM);
     always_comb
@@ -56,7 +56,7 @@ module lsu(
     end
 
 
-    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .CSRM, .extout,
-                        .ReadDataM, .RegWriteW, .ResultSrcW, .CSRW, .IEUResultW, .ReadDataW, .RdW, .RdM, .ImmExtM, .ImmExtW, .ValidM, .ValidW);
+    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .CSRM, .IEUResultM, .MulResult, .MulResultW,
+                        .ReadDataM, .RegWriteW, .IsMulM, .IsMulW, .ResultSrcW, .CSRW, .IEUResultW, .ReadDataW, .RdW, .RdM, .ImmExtM, .ImmExtW, .ValidM, .ValidW);
 
 endmodule

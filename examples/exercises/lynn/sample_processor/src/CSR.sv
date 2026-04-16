@@ -56,6 +56,7 @@ module CSR(
             12'hC81: CSRout = rdtime[63:32];
             12'hC02: CSRout = rdinsret[31:0];
             12'hC82: CSRout = rdinsret[63:32];
+
             12'hC03: CSRout = hpm3[31:0];
             12'hC83: CSRout = hpm3[63:32];
             12'hC04: CSRout = hpm4[31:0];
