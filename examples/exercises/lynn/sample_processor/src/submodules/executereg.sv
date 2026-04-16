@@ -3,27 +3,28 @@
 module executereg(
         input  logic        clk, reset,
         input  logic        FlushM, noStallM,
-        input  logic        RegWriteE, MemRWE, ValidE,
+        input  logic        RegWriteE, MemRWE, ValidE, IsMulE,
         input  logic [1:0]  ResultSrcE,
-        input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE, CSRE,ImmExtE, // MulResult,
+        input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE, CSRE,ImmExtE,
         input  logic [2:0]  Funct3E,
         input  logic [4:0]  RdE,
         input  logic [3:0]  WriteByteEn,
-        input  logic        IsMulE,
-        output logic        RegWriteM, MemRWM, ValidM,
+        output logic        RegWriteM, MemRWM, ValidM, IsMulM,
         output logic [1:0]  ResultSrcM,
-        output logic [31:0] IEUResultM, IEUAdrM, FSrcBM, CSRM, ImmExtM, // MulResultM,
+        output logic [31:0] IEUResultM, IEUAdrM, FSrcBM, CSRM, ImmExtM,
         output logic [2:0]  Funct3M,
         output logic [4:0]  RdM,
-        output logic [3:0]  WriteByteEnM,
-        output logic        IsMulM
+        output logic [3:0]  WriteByteEnM
     );
-    logic QRegWrite, QMemRW, QValid, QMul;
+    logic QRegWrite, QMemRW, QValid, QIsMul;
     logic [1:0] QResultSrc;
     logic [31:0] QIEUResult, QIEUAdr, QFSrcB, QCSR, QImmExt;
     logic [2:0] QFunct3;
     logic [4:0] QRd;
     logic [3:0] QWriteByte;
+
+    mux2 #(1) Mulmux(IsMulM, (IsMulE & ~FlushM), noStallM, QIsMul);
+    flopr #(1) IsMulreg(.clk, .reset, .D(QIsMul), .Q(IsMulM));
 
     mux2 #(1) RegWritemux(RegWriteM, (RegWriteE & ~FlushM), noStallM, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteM));
@@ -33,9 +34,6 @@ module executereg(
 
     mux2 #(1) Validmux(ValidM, (ValidE & ~FlushM), noStallM, QValid);
     flopr #(1) Validreg(.clk, .reset, .D(QValid), .Q(ValidM));
-
-    mux2 #(1) Mulmux(IsMulM, (IsMulE & ~FlushM), noStallM, QMul);
-    flopr #(1) Mulreg(.clk, .reset, .D(QMul), .Q(IsMulM));
 
     mux2 #(2) ResultSrcmux(ResultSrcM, (ResultSrcE & {2{~FlushM}}), noStallM, QResultSrc);
     flopr #(2) ResultSrcreg(.clk, .reset, .D(QResultSrc), .Q(ResultSrcM));

@@ -17,8 +17,8 @@ module multiplier (
 
     // Execute Stage
     // Sign extend
-    assign    a_s = $signed({{32{R1[31]}}, R1});   // sign-extend R1 to 64
-    assign    b_s = $signed({{32{R2[31]}}, R2});   // sign-extend R2 to 64
+    assign    a_s = {{32{R1[31]}}, R1};   // sign-extend R1 to 64
+    assign    b_s = {{32{R2[31]}}, R2};   // sign-extend R2 to 64
     assign    a_u = {{32{1'b0}}, R1};              // zero-extend R1 to 64
     assign    b_u = {{32{1'b0}}, R2};              // zero-extend R2 to 64
 

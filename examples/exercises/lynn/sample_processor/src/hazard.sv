@@ -3,7 +3,7 @@
 module hazard(
         input  logic [4:0]  Rs1D, Rs2D,Rs1E, Rs2E,
         input  logic [4:0]  RdE,
-        input  logic        PCSrcE,
+        input  logic        MisPredictE, BranchPrD, IsMulE,
         input  logic [1:0]  ResultSrcE,
         input  logic [4:0]  RdM, RdW,
         input  logic        RegWriteM, RegWriteW,
@@ -30,7 +30,7 @@ module hazard(
             ForwardBE = 2'b00;
     end
 
-    assign lwStall = (ResultSrcE == 2'b01) && (RdE != 5'd0) && ((Rs1D == RdE) || (Rs2D == RdE));
+    assign lwStall = (IsMulE | (ResultSrcE == 2'b01)) && (RdE != 5'd0) && ((Rs1D == RdE) || (Rs2D == RdE));
     assign StallF = lwStall;
     assign StallD = lwStall;
     assign StallE = 0;
@@ -39,7 +39,7 @@ module hazard(
     assign StallW = 0;
     assign FlushW = 0;
 
-    assign FlushD = PCSrcE; //
-    assign FlushE = lwStall | PCSrcE;
+    assign FlushD = MisPredictE | BranchPrD; //
+    assign FlushE = lwStall | MisPredictE;
 
 endmodule

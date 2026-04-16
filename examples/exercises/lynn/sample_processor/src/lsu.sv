@@ -15,27 +15,36 @@ module lsu(
         input   logic [31:0]    CSRE, ImmExtE,
         input   logic [4:0]     RdE,
         input   logic [3:0]     WriteByteEn,
-        // output  logic [31:0]    IEUResultW, ReadDataW,
+        output  logic [31:0]    IEUResultW, ReadDataW, extout,
         output  logic [4:0]     RdW,RdM,
         output  logic           RegWriteW, RegWriteM,
-        // output  logic [1:0]     ResultSrcW,
-        output  logic           MemEn, ValidW, IsMulW,
-        output  logic [31:0]    ResultM, ResultW, //CSRW, ImmExtW, MulResultW,
+        output  logic [1:0]     ResultSrcW,
+        output  logic           MemEn, ValidW,
+        output  logic [31:0]    CSRW, ImmExtW,
         output  logic [3:0]     WriteByteEnM
+        // fill in
     );
 
     logic ValidM, IsMulM;
-    logic [1:0]  ResultSrcM;
+    logic [1:0]  ResultSrcM, ForwardSelM;
 
-    logic [31:0] FSrcBM, ReadDataM, CSRM, ImmExtM, IEUResultM, extout;
-    executereg executereg(.clk, .reset, .FlushM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE, .ImmExtE, .ImmExtM,
-                        .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM, .CSRE, .CSRM, .WriteByteEn, .WriteByteEnM, .ValidE, .ValidM,
-                        .IsMulE, .IsMulM);
+    logic [31:0] FSrcBM, ReadDataM, CSRM, ImmExtM, IEUResultM,extoutM;
+    executereg executereg(.clk, .reset, .FlushM, .IsMulE, .IsMulM, .noStallM(~StallM), .RegWriteE, .MemRWE, .ResultSrcE, .IEUResultE, .IEUAdrE, .FSrcBE, .Funct3E, .RdE, .ImmExtE, .ImmExtM,
+                        .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM, .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM, .CSRE, .CSRM, .WriteByteEn, .WriteByteEnM, .ValidE, .ValidM);
 
     ext2 ext2(Funct3M, IEUAdr[2:0], ReadData, ReadDataM); // this is for load/store
 
-    mux2 #(32) extmux(IEUResultM, MulResult, IsMulM, extout);
-    mux4 #(32) resultmuxM(extout, ReadDataM, ImmExtM, CSRM, ResultSrcM, ResultM);
+    mux2 #(32) extmux(IEUResultM, MulResult, IsMulM, extoutM);
+    always_comb begin
+    case (ResultSrcM)
+        2'b10: ForwardSelM = 2'b01; // LUI → ImmExtM
+        2'b11: ForwardSelM = 2'b10; // CSR → CSRM
+        default: ForwardSelM = 2'b00; // ALU/MUL
+    endcase
+    end
+    mux3 #(32) fwdmuxM(extoutM, ImmExtM, CSRM, ForwardSelM, extout);
+
+    // mux4 #(32) resultmuxM(IEUResultM, ReadDataM, ImmExtM, CSRM, ResultSrcM, ResultM);
     always_comb
     begin
         case(Funct3M[1:0])
@@ -47,7 +56,7 @@ module lsu(
     end
 
 
-    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .IsMulM, .IsMulW, .ResultM, // .MulResultW, .MulResult, .CSRM, .IEUResultM,
-                        .RegWriteW, .RdW, .RdM, .ValidM, .ValidW, .ResultW); // .ResultSrcM,.ResultSrcW, , .ReadDataM, .CSRW, .IEUResultW, .ReadDataW, .ImmExtM, .ImmExtW);
+    memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .CSRM, .extout,
+                        .ReadDataM, .RegWriteW, .ResultSrcW, .CSRW, .IEUResultW, .ReadDataW, .RdW, .RdM, .ImmExtM, .ImmExtW, .ValidM, .ValidW);
 
 endmodule

@@ -4,12 +4,12 @@
 
 module ifu(
         input   logic           clk, reset,
-        input   logic           PCSrcE, StallF,
-        input   logic [31:0]    IEUAdrE,
-        output  logic [31:0]    PC
+        input   logic           BranchPr, StallF, MisPredictE, PCSrcE,
+        input   logic [31:0]    IEUAdrE, PCPredict, PCPlus4E,
+        output  logic [31:0]    PC, PCPlus4F
     );
 
-    logic [31:0] PCNextF, PCPlus4F;
+    logic [31:0] PCNextF;
     // next PC logic
     logic [31:0] entry_addr;
 
@@ -30,5 +30,20 @@ module ifu(
 
     adder pcadd4(PC, 32'd4, PCPlus4F);
 
-    mux2 #(32) pcmux(PCPlus4F, {IEUAdrE[31:1], 1'b0}, PCSrcE, PCNextF);
-endmodule
+    always_comb begin
+        if (MisPredictE) begin
+            if (PCSrcE)
+                PCNextF = {IEUAdrE[31:1], 1'b0};
+            else
+                PCNextF = PCPlus4E;
+        end
+        else if (BranchPr) begin
+            PCNextF = PCPredict;
+        end
+        else begin
+            PCNextF = PCPlus4F;
+        end
+    end
+
+
+    endmodule
