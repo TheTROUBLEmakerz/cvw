@@ -23,7 +23,7 @@ module decodereg(
     logic [2:0] QFunct3;
     logic [4:0] QRd, QRs1, QRs2;
 
-    mux2 #(1) IsMulmux(BranchPrE, (IsMul & ~FlushE), noStallE, QIsMul);
+    mux2 #(1) IsMulmux(IsMulE, (IsMul & ~FlushE), noStallE, QIsMul);
     flopr #(1) IsMulreg(.clk, .reset, .D(QIsMul), .Q(IsMulE));
 
     mux2 #(1) BranchPrmux(BranchPrE, (BranchPr & ~FlushE), noStallE, QBranchPr);
