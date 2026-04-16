@@ -3,25 +3,28 @@
 module executereg(
         input  logic        clk, reset,
         input  logic        FlushM, noStallM,
-        input  logic        RegWriteE, MemRWE, ValidE,
+        input  logic        RegWriteE, MemRWE, ValidE, IsMulE,
         input  logic [1:0]  ResultSrcE,
         input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE, CSRE,ImmExtE,
         input  logic [2:0]  Funct3E,
         input  logic [4:0]  RdE,
         input  logic [3:0]  WriteByteEn,
-        output logic        RegWriteM, MemRWM, ValidM,
+        output logic        RegWriteM, MemRWM, ValidM, IsMulM,
         output logic [1:0]  ResultSrcM,
         output logic [31:0] IEUResultM, IEUAdrM, FSrcBM, CSRM, ImmExtM,
         output logic [2:0]  Funct3M,
         output logic [4:0]  RdM,
         output logic [3:0]  WriteByteEnM
     );
-    logic QRegWrite, QMemRW, QValid;
+    logic QRegWrite, QMemRW, QValid, QIsMul;
     logic [1:0] QResultSrc;
     logic [31:0] QIEUResult, QIEUAdr, QFSrcB, QCSR, QImmExt;
     logic [2:0] QFunct3;
     logic [4:0] QRd;
     logic [3:0] QWriteByte;
+
+    mux2 #(1) Mulmux(IsMulM, (IsMulE & ~FlushM), noStallM, QIsMul);
+    flopr #(1) IsMulreg(.clk, .reset, .D(QIsMul), .Q(IsMulM));
 
     mux2 #(1) RegWritemux(RegWriteM, (RegWriteE & ~FlushM), noStallM, QRegWrite);
     flopr #(1) RegWritereg(.clk, .reset, .D(QRegWrite), .Q(RegWriteM));

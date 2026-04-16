@@ -10,21 +10,21 @@ module datapath(
         input   logic [1:0]     ALUControlE, //
         output  logic           Eq, Lt, //
         input   logic [31:0]    PCE, //
-        output  logic [31:0]    IEUAdrE, FSrcBE, IEUResultE, //
+        output  logic [31:0]    IEUAdrE, FSrcBE, FSrcAE, IEUResultE, //
         // input   logic           IsMul,
         input   logic           ALUResultSrcE, JumpE,//
         input   logic [1:0]     ALUSrcE, //
 
-        input   logic [31:0]    IEUResultM, ResultW, //
+        input   logic [31:0]    extout, ResultW, //
         input   logic [1:0]     ForwardAE, ForwardBE //
     );
 
-    logic [31:0] FSrcAE, SrcAE, SrcBE, PCLinkE, ALUResultE, AltResultE;
+    logic [31:0] SrcAE, SrcBE, PCLinkE, ALUResultE, AltResultE;
     logic [31:0] MulResult, CalcOut; //for mult unit
     logic [31:0] ExecResult;  // ALUResult with optional MUL override
 
-    mux3 #(32) top3mux(Rd1E, ResultW, IEUResultM, ForwardAE, FSrcAE);
-    mux3 #(32) bot3mux(Rd2E, ResultW, IEUResultM, ForwardBE, FSrcBE);
+    mux3 #(32) top3mux(Rd1E, ResultW, extout, ForwardAE, FSrcAE);
+    mux3 #(32) bot3mux(Rd2E, ResultW, extout, ForwardBE, FSrcBE);
     cmp cmp(.R1(FSrcAE), .R2(FSrcBE), .unsignedCmp(Funct3E[1]), .Eq, .Lt);
 
     mux2 #(32) srcamux(FSrcAE, PCE, ALUSrcE[1], SrcAE);

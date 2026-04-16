@@ -1,41 +1,41 @@
 module multiplier (
+    input  logic clk, reset,
     input  logic [31:0] R1,
     input  logic [31:0] R2,
-    input  logic [2:0]  funct3,
-    output logic [31:0] MulResult
+    input  logic [2:0]  Funct3,
+    input  logic [2:0]  Funct3M,
+    output logic [31:0] MulResult,
+    input  logic        FlushM, noStallM
 );
 
-    // Widened operands (explicit, avoids SV sizing surprises)
-    logic signed [63:0] a_s;
-    logic signed [63:0] b_s;
+    logic        [63:0] a_s;
+    logic        [63:0] b_s;
     logic        [63:0] a_u;
     logic        [63:0] b_u;
+    logic        [63:0] prod, prodM, Qprod;
+    logic        [63:0] Aout, Bout;
 
-    logic signed [63:0] prod_ss;  // signed*signed
-    logic signed [63:0] prod_su;  // signed*unsigned (result treated as signed for slicing)
-    logic        [63:0] prod_uu;  // unsigned*unsigned
+    // Execute Stage
+    // Sign extend
+    assign    a_s = {{32{R1[31]}}, R1};   // sign-extend R1 to 64
+    assign    b_s = {{32{R2[31]}}, R2};   // sign-extend R2 to 64
+    assign    a_u = {{32{1'b0}}, R1};              // zero-extend R1 to 64
+    assign    b_u = {{32{1'b0}}, R2};              // zero-extend R2 to 64
 
+    mux2  #(64) muxA(a_s,a_u,(Funct3 == 3'b011),Aout);
+    mux2  #(64) muxB(b_s,b_u,(Funct3[1] == 1),Bout);
+
+    assign prod = Aout * Bout;
+
+    mux2 #(64) RegPmux(prodM, (prod & {64{~FlushM}}), noStallM, Qprod);
+    flopr #(64) RegPreg(.clk, .reset, .D(Qprod), .Q(prodM));
+
+    // Memory Stage
     always_comb begin
-        // Explicit widening
-        a_s = $signed({{32{R1[31]}}, R1});   // sign-extend R1 to 64
-        b_s = $signed({{32{R2[31]}}, R2});   // sign-extend R2 to 64
-        a_u = {{32{1'b0}}, R1};              // zero-extend R1 to 64
-        b_u = {{32{1'b0}}, R2};              // zero-extend R2 to 64
 
-        // Products
-        prod_ss = a_s * b_s;
-        prod_su = a_s * $signed(b_u);        // b_u is non-negative, cast is safe
-        prod_uu = a_u * b_u;
-
-        // Default
-        MulResult = 32'b0;
-
-        unique case (funct3)
-            3'b000: MulResult = prod_ss[31:0];   // mul
-            3'b001: MulResult = prod_ss[63:32];  // mulh
-            3'b010: MulResult = prod_su[63:32];  // mulhsu
-            3'b011: MulResult = prod_uu[63:32];  // mulhu
-            default: MulResult = 32'b0;
+        case (Funct3M)
+            3'b000: MulResult = prodM[31:0];   // mul
+            default: MulResult = prodM[63:32];  // mulh
         endcase
     end
 endmodule
