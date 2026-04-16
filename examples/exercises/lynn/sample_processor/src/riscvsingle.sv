@@ -24,7 +24,7 @@ module riscvsingle (
     logic PCSrcE, MemRWE;
     logic [31:0] PCD;
     logic [31:0] InstrD;
-    logic [31:0] IEUAdrE, IEUResultE, IEUResultM, IEUResultW, ReadDataW;
+    logic [31:0] IEUAdrE, IEUResultE, ResultM, ResultW, ReadDataW;
     logic [31:0] Rd1D, Rd1E, Rd2D, Rd2E;
     logic StallF, FlushD, StallD, FlushE, StallE, FlushM, StallM, FlushW, StallW;
     logic [1:0] ForwardAE, ForwardBE;
@@ -38,13 +38,13 @@ module riscvsingle (
 
     ifu ifu(.clk, .reset, .PCSrcE, .IEUAdrE, .PC, .StallF);
     fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF(PC), .InstrF(Instr), .PCD, .InstrD, .ValidD);
-    ieu ieu(.clk, .reset, .StallE, .ImmExtE, .FlushE, .ForwardAE, .ForwardBE, .InstrD, .CSRout, .PCD, .PCSrcE, .WriteByteEnE, .RegWriteW, .ResultSrcW, .IEUResultM, .IEUResultW, .ReadDataW, .RdW, .IEUAdrE, .IEUResultE, .ReadData, .CSRW, .MemRWE, .FSrcAE, .FSrcBE,
-             .RdE, .Rs2E, .Rs1E, .Funct3E, .RegWriteE, .ResultSrcE, .CSRE, .ValidD, .ValidE, .ImmExtW, .IsMulE, .IsMulW, .MulResultW);
-    lsu lsu(.clk, .reset, .Funct3E, .ImmExtE, .IEUAdrE, .ImmExtW, .IEUResultE, .RdE, .RdM, .RegWriteM, .FSrcBE, .ReadData, .IEUAdr, .WriteData, .Funct3M, .RegWriteE, .MemRWE, .ResultSrcE, .StallM, .FlushM, .StallW, .FlushW,
-            .CSRE, .IEUResultW, .ReadDataW, .RdW, .RegWriteW, .ResultSrcW, .MemEn, .CSRW, .ResultM(IEUResultM), .WriteByteEn(WriteByteEnE), .WriteByteEnM(WriteByteEn), .ValidW, .ValidE, .IsMulE, .IsMulW, .MulResult, .MulResultW);
+    ieu ieu(.clk, .reset, .StallE, .ImmExtE, .FlushE, .ForwardAE, .ForwardBE, .InstrD, .CSRout, .PCD, .PCSrcE, .WriteByteEnE, .RegWriteW, .RdW, .IEUAdrE, .IEUResultE, .MemRWE, .FSrcAE, .FSrcBE,
+             .RdE, .Rs2E, .Rs1E, .Funct3E, .RegWriteE, .ResultSrcE, .CSRE, .ValidD, .ValidE, .IsMulE, .IsMulW, .ResultW, .ResultM); // .ImmExtW, .ResultSrcW, .IEUResultM, .IEUResultW, .ReadDataW, .ReadData, .MulResultW, .CSRW,
+    lsu lsu(.clk, .reset, .Funct3E, .ImmExtE, .IEUAdrE, .IEUResultE, .RdE, .RdM, .RegWriteM, .FSrcBE, .IEUAdr, .ReadData, .WriteData, .Funct3M, .RegWriteE, .MemRWE, .ResultSrcE, .StallM, .FlushM, .StallW, .FlushW, .MulResult,
+            .CSRE, .RdW, .RegWriteW, .MemEn, .ResultM, .ResultW, .WriteByteEn(WriteByteEnE), .WriteByteEnM(WriteByteEn), .ValidW, .ValidE, .IsMulE, .IsMulW); //.ImmExtW,  .ResultSrcW, , .CSRW,  .MulResultW, .IEUResultW, .ReadDataW);
     assign InsnRetired = ValidW & ~StallW;
     CSR CSRmodule(.clk, .reset, .InsnRetired, .CSRAddress(InstrD[31:20]), .CSRout); //.IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsStore, .IsLoad, .IsLui, .IsAuipc
     assign WriteEn = |WriteByteEn;
     hazard hazard(.Rs1D(InstrD[19:15]), .Rs2D(InstrD[24:20]), .Rs1E, .Rs2E, .RdE, .PCSrcE, .ResultSrcE, .RdM, .RegWriteM, .RegWriteW, .StallF, .StallD, .FlushD, .FlushE, .ForwardAE, .ForwardBE, .FlushW, .StallW, .FlushM, .StallM, .StallE, .RdW);
-    multiplier mdu(.R1(FSrcAE), .R2(FSrcBE), .Funct3(Funct3E), .MulResult);
+    multiplier mdu(.R1(FSrcAE), .R2(FSrcBE), .Funct3(Funct3E), .Funct3M, .MulResult, .noStallM(~StallM), .FlushM, .clk, .reset);
 endmodule

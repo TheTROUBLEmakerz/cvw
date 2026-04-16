@@ -14,7 +14,7 @@ module datapath(
         input   logic           ALUResultSrcE, JumpE,
         input   logic [1:0]     ALUSrcE,
 
-        input   logic [31:0]    IEUResultM, ResultW,
+        input   logic [31:0]    ResultM, ResultW,
         input   logic [1:0]     ForwardAE, ForwardBE
     );
 
@@ -22,8 +22,8 @@ module datapath(
     logic [31:0] MulResult, CalcOut; //for mult unit
     logic [31:0] ExecResult;  // ALUResult with optional MUL override
 
-    mux3 #(32) top3mux(Rd1E, ResultW, IEUResultM, ForwardAE, FSrcAE);
-    mux3 #(32) bot3mux(Rd2E, ResultW, IEUResultM, ForwardBE, FSrcBE);
+    mux3 #(32) top3mux(Rd1E, ResultW, ResultM, ForwardAE, FSrcAE);
+    mux3 #(32) bot3mux(Rd2E, ResultW, ResultM, ForwardBE, FSrcBE);
     cmp cmp(.R1(FSrcAE), .R2(FSrcBE), .unsignedCmp(Funct3E[1]), .Eq, .Lt);
 
     mux2 #(32) srcamux(FSrcAE, PCE, ALUSrcE[1], SrcAE);
