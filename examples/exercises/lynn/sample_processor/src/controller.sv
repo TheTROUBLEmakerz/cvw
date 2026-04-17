@@ -22,8 +22,8 @@ module controller(
         output  logic         Jump, Branch,
         // output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
         // output  logic         IsMul,
-        output  logic         BranchPr,
-        input   logic         JumpE, BranchE
+        output  logic         BranchPr
+        // input   logic         JumpE, BranchE
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
     `endif
