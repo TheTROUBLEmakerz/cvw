@@ -16,13 +16,13 @@ module hazard(
 
     always_comb
     begin
-        if (((Rs1E == RdM) & RegWriteM & !IsMulM) & (Rs1E != 0))
+        if (((Rs1E == RdM) & RegWriteM) & (Rs1E != 0))
             ForwardAE = 2'b10;
         else if (((Rs1E == RdW) & RegWriteW) & (Rs1E != 0))
             ForwardAE = 2'b01;
         else
             ForwardAE = 2'b00;
-        if (((Rs2E == RdM) & RegWriteM & !IsMulM) & (Rs2E != 0))
+        if (((Rs2E == RdM) & RegWriteM) & (Rs2E != 0))
             ForwardBE = 2'b10;
         else if (((Rs2E == RdW) & RegWriteW) & (Rs2E != 0))
             ForwardBE = 2'b01;
@@ -31,8 +31,7 @@ module hazard(
     end
 
 
-    assign mulStall = (IsMulE && (RdE != 5'd0) && ((Rs1D == RdE) || (Rs2D == RdE))) ||
-                        (IsMulM && (RdM != 5'd0) && ((Rs1D == RdM) || (Rs2D == RdM)));
+    assign mulStall = (IsMulE && (RdE != 5'd0) && ((Rs1D == RdE) || (Rs2D == RdE)));
 
     assign lwStall = (ResultSrcE == 2'b01) && (RdE != 5'd0) && ((Rs1D == RdE) || (Rs2D == RdE));
     assign StallF = lwStall || mulStall;
