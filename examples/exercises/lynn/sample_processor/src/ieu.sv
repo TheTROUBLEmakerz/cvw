@@ -14,14 +14,14 @@ module ieu(
         input   logic [31:0]    PCD,
         output  logic           PCSrcE,
         output  logic [3:0]     WriteByteEnE,
-        input   logic           RegWriteW,
+        input   logic           RegWriteW, BranchPrD,
         input   logic [1:0]     ResultSrcW,
-        input   logic [31:0]    extout, IEUResultW, ReadDataW, MulResultW,
+        input   logic [31:0]    extout, IEUResultW, ReadDataW, MulResultW, ImmExtD,
         input   logic [4:0]     RdW,
-        output  logic [31:0]    IEUAdrE, IEUResultE, FSrcAE, FSrcBE,ImmExtD, //PCPredict,
+        output  logic [31:0]    IEUAdrE, IEUResultE, FSrcAE, FSrcBE, //PCPredict,
         input   logic [31:0]    ReadData, CSRW, ImmExtW,
         output  logic [31:0]    CSRE,ImmExtE, PCLinkE,
-        output  logic           MemRWE, RegWriteE, ValidE, BranchPrD, MisPredictE, IsMulE,
+        output  logic           MemRWE, RegWriteE, ValidE, MisPredictE, IsMulE,
         // output  logic           IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
         output  logic [4:0]     RdE, Rs1E, Rs2E,
         output  logic [2:0]     Funct3E,
@@ -43,7 +43,7 @@ module ieu(
 
     controller c(.IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
         .ALUResultSrc, .ResultSrc, .Funct7(InstrD[31:25]), .Jump, .Branch, .Funct3E, .MemWrite, // .WriteByteEn,
-        .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .MSB(InstrD[31]), .BranchPr(BranchPrD), .IsMul//, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsMul, .IsStore, .IsLoad, .IsLui, .IsAuipc
+        .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .MSB(InstrD[31]), .IsMul//, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsMul, .IsStore, .IsLoad, .IsLui, .IsAuipc
     `ifdef DEBUG
         , .insn_debug(InstrD)
     `endif
@@ -54,7 +54,7 @@ module ieu(
         .A3(RdW), .WD3(ResultW), .RD1(Rd1D), .RD2(Rd2D));
 
     // immediate extend unit
-    extend ext(.Instr(InstrD[31:7]), .ImmSrc(ImmSrcD), .ImmExt(ImmExtD));
+    // extend ext(.Instr(InstrD[31:7]), .ImmSrc(ImmSrcD), .ImmExt(ImmExtD));
     // adder PredictPC(PCD, ImmExtD, PCPredict);
 
     decodereg decodereg(.BranchE, .Branch, .clk, .reset, .FlushE, .noStallE(~StallE), .RegWrite, .MemRW(MemEn), .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1(Rd1D), .Rd2(Rd2D), .ImmExt(ImmExtD), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .RdD(InstrD[11:7]), .Rs1D(InstrD[19:15]), .Rs2D(InstrD[24:20]),
