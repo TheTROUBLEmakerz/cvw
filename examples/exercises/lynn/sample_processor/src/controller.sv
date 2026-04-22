@@ -20,8 +20,10 @@ module controller(
         output  logic [1:0]   ALUControl,
         output  logic         MemEn,MemWrite, IsMul, IsZba, //IsZbs,
         output  logic         Jump, Branch,
-        output  logic         BranchPr,
-        input   logic         JumpE, BranchE
+        // output  logic         IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
+        // output  logic         IsMul,
+        output  logic         BranchPr
+        // input   logic         JumpE, BranchE
     `ifdef DEBUG
         , input   logic [31:0]  insn_debug
     `endif

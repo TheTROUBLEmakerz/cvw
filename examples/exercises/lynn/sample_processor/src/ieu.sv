@@ -46,7 +46,7 @@ module ieu(
 
 
     fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF(PC), .InstrF(Instr), .PCD, .InstrD, .ValidD);
-    controller c(.JumpE, .BranchE, .IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Eq, .Lt,
+    controller c(.IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Eq, .Lt,
         .ALUResultSrc, .ResultSrc, .Funct7(InstrD[31:25]), .Jump, .Branch, .Funct3E, .MemWrite, // .WriteByteEn,
         .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .MSB(InstrD[31]), .BranchPr(BranchPrD), .IsMul, .IsZba//, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsMul, .IsStore, .IsLoad, .IsLui, .IsAuipc
     `ifdef DEBUG
@@ -98,5 +98,5 @@ module ieu(
     end
     assign PCSrcE = (BranchE & Flag) | JumpE;
     assign ActualTakenE = BranchE & Flag;
-    assign MisPredictE  = JumpE | BranchE & (ActualTakenE != BranchPrE); // jump or mispredict
+assign MisPredictE  = JumpE | BranchE & (ActualTakenE != BranchPrE); // jump or mispredict
 endmodule

@@ -5,7 +5,7 @@
 module ifu(
         input   logic           clk, reset,
         input   logic           BranchPr, StallF, MisPredictE, PCSrcE,
-        input   logic [31:0]    IEUAdrE, PCLinkE,PCD, ImmExtD, //PCPredict,
+        input   logic [31:0]    IEUAdrE, PCLinkE,PCD, ImmExtD,
         output  logic [31:0]    PC
     );
 

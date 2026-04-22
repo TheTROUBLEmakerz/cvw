@@ -20,7 +20,7 @@ module riscvsingle (
         output  logic [3:0]     WriteByteEn  // strobes, 1 hot stating weather a byte should be written on a store
     );
 
-    logic [31:0] CSRout, PCE, extout; //PCPredict,
+    logic [31:0] CSRout, PCE, extout;
     logic PCSrcE, MemRWE, BranchPrD, MisPredictE;
 //     logic IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc;
     logic [31:0] PCD;
