@@ -11,26 +11,27 @@ module datapath(
         output  logic           Eq, Lt, //
         input   logic [31:0]    PCE, //
         output  logic [31:0]    IEUAdrE, FSrcBE, FSrcAE, IEUResultE, PCLinkE,//
-        // input   logic           IsMul,
+        input   logic           IsZbaE,
         input   logic           ALUResultSrcE, JumpE,//
         input   logic [1:0]     ALUSrcE, //
-
         input   logic [31:0]    extout, ResultW, //
         input   logic [1:0]     ForwardAE, ForwardBE //
     );
 
-    logic [31:0] SrcAE, SrcBE, ALUResultE, AltResultE;
+    logic [31:0] SrcAE, SrcBE, ALUResultE, AltResultE, shaddout;
     logic [31:0] MulResult, CalcOut; //for mult unit
     logic [31:0] ExecResult;  // ALUResult with optional MUL override
+    logic [2:0] ALUFunct3E;
 
     mux3 #(32) top3mux(Rd1E, ResultW, extout, ForwardAE, FSrcAE);
     mux3 #(32) bot3mux(Rd2E, ResultW, extout, ForwardBE, FSrcBE);
     cmp cmp(.R1(FSrcAE), .R2(FSrcBE), .unsignedCmp(Funct3E[1]), .Eq, .Lt);
-
-    mux2 #(32) srcamux(FSrcAE, PCE, ALUSrcE[1], SrcAE);
+    mux3 #(32) shaddmux({FSrcAE[28:0], 3'b000}, {FSrcAE[29:0], 2'b00}, {FSrcAE[30:0], 1'b0}, ~Funct3E[2:1], shaddout);
+    mux3 #(32) srcamux(FSrcAE, PCE, shaddout, {IsZbaE, ALUSrcE[1]}, SrcAE);
     mux2 #(32) srcbmux(FSrcBE, ImmExtE, ALUSrcE[0], SrcBE);
 
-    alu alu(.SrcA(SrcAE), .SrcB(SrcBE), .ALUControl(ALUControlE), .Funct3(Funct3E), .ALUResult(ALUResultE), .IEUAdr(IEUAdrE), .Funct7b5E);
+    assign ALUFunct3E = IsZbaE ? 3'b000 : Funct3E;
+    alu alu(.SrcA(SrcAE), .SrcB(SrcBE), .ALUControl(ALUControlE), .Funct3(ALUFunct3E), .ALUResult(ALUResultE), .IEUAdr(IEUAdrE), .Funct7b5E);
     // multiplier multiplier(.R1(FSrcAE), .R2(FSrcBE), .funct3(Funct3E), .MulResult); // need to look later really wrong
 
     // mux2 #(32) ieuresultmux(ALUResult, PCPlus4, ALUResultSrc, IEUResult);

@@ -5,18 +5,21 @@ module memoryreg(
         input  logic        FlushW, noStallW, ValidM,
         input  logic        RegWriteM, IsMulM,
         input  logic [1:0]  ResultSrcM,
-        input  logic [31:0] CSRM, IEUResultM, ReadDataM,ImmExtM, MulResult,
+        input  logic [11:0] CSRAddressM,
+        input  logic [31:0] IEUResultM, ReadDataM,ImmExtM, MulResult,
         input  logic [4:0]  RdM,
         output logic        RegWriteW, ValidW, IsMulW,
         output logic [1:0]  ResultSrcW,
-        output logic [31:0] CSRW, IEUResultW, ReadDataW, ImmExtW, MulResultW,
+        output logic [11:0] CSRAddressW,
+        output logic [31:0] IEUResultW, ReadDataW, ImmExtW, MulResultW,
         output logic [4:0]  RdW
     );
 
     logic QRegWrite, QValid, QIsMul;
     logic [4:0] QRd;
     logic [1:0] QResultSrc;
-    logic [31:0] QCSR, QIEUResult, QReadData, QImmExt, QMulResult;
+    logic [31:0] QIEUResult, QReadData, QImmExt, QMulResult;
+    logic [11:0] QCSRAddress;
 
     mux2 #(5) Rdmux(RdW, (RdM & {5{~FlushW}}), noStallW, QRd);
     flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdW));
@@ -36,8 +39,8 @@ module memoryreg(
     mux2 #(32) MulResultmux(MulResultW, (MulResult & {32{~FlushW}}), noStallW, QMulResult);
     flopr #(32) MulResultreg(.clk, .reset, .D(QMulResult), .Q(MulResultW));
 
-    mux2 #(32) CSRmux(CSRW, (CSRM & {32{~FlushW}}), noStallW, QCSR);
-    flopr #(32) CSRreg(.clk, .reset, .D(QCSR), .Q(CSRW));
+    mux2 #(12) CSRAddressmux(CSRAddressW, (CSRAddressM & {12{~FlushW}}), noStallW, QCSRAddress);
+    flopr #(12) CSRAddressreg(.clk, .reset, .D(QCSRAddress), .Q(CSRAddressW));
 
     mux2 #(32) IEUResultmux(IEUResultW, (IEUResultM & {32{~FlushW}}), noStallW, QIEUResult);
     flopr #(32) IEUResultreg(.clk, .reset, .D(QIEUResult), .Q(IEUResultW));

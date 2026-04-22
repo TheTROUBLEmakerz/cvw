@@ -47,8 +47,7 @@ module alu(
                     if (SrcB[4:0] == 0)
                         ALUResult = SrcA;
                     else
-                        ALUResult = (SrcA >> SrcB[4:0]) |
-                            ({32{SrcA[31]}} << (32 - SrcB[4:0]));
+                        ALUResult = $signed(SrcA) >>> SrcB[4:0];
                     end else begin
                         // SRL
                         ALUResult = (SrcA >> SrcB[4:0]);

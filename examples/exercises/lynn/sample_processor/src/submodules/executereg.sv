@@ -5,20 +5,23 @@ module executereg(
         input  logic        FlushM, noStallM,
         input  logic        RegWriteE, MemRWE, ValidE, IsMulE,
         input  logic [1:0]  ResultSrcE,
-        input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE, CSRE,ImmExtE,
+        input  logic [31:0] IEUResultE, IEUAdrE, FSrcBE, ImmExtE,
+        input  logic [11:0] CSRAddressE,
         input  logic [2:0]  Funct3E,
         input  logic [4:0]  RdE,
         input  logic [3:0]  WriteByteEn,
         output logic        RegWriteM, MemRWM, ValidM, IsMulM,
         output logic [1:0]  ResultSrcM,
-        output logic [31:0] IEUResultM, IEUAdrM, FSrcBM, CSRM, ImmExtM,
+        output logic [31:0] IEUResultM, IEUAdrM, FSrcBM, ImmExtM,
+        output logic [11:0] CSRAddressM,
         output logic [2:0]  Funct3M,
         output logic [4:0]  RdM,
         output logic [3:0]  WriteByteEnM
     );
     logic QRegWrite, QMemRW, QValid, QIsMul;
     logic [1:0] QResultSrc;
-    logic [31:0] QIEUResult, QIEUAdr, QFSrcB, QCSR, QImmExt;
+    logic [31:0] QIEUResult, QIEUAdr, QFSrcB, QImmExt;
+    logic [11:0] QCSRAddress;
     logic [2:0] QFunct3;
     logic [4:0] QRd;
     logic [3:0] QWriteByte;
@@ -47,8 +50,8 @@ module executereg(
     mux2 #(32) FSrcBmux(FSrcBM, (FSrcBE & {32{~FlushM}}), noStallM, QFSrcB);
     flopr #(32) FSrcBreg(.clk, .reset, .D(QFSrcB), .Q(FSrcBM));
 
-    mux2 #(32) CSRmux(CSRM, (CSRE & {32{~FlushM}}), noStallM, QCSR);
-    flopr #(32) CSRreg(.clk, .reset, .D(QCSR), .Q(CSRM));
+    mux2 #(12) CSRAddressmux(CSRAddressM, (CSRAddressE & {12{~FlushM}}), noStallM, QCSRAddress);
+    flopr #(12) CSRAddressreg(.clk, .reset, .D(QCSRAddress), .Q(CSRAddressM));
 
     mux2 #(32) ImmExtmux(ImmExtM, (ImmExtE & {32{~FlushM}}), noStallM, QImmExt);
     flopr #(32) ImmExtreg(.clk, .reset, .D(QImmExt), .Q(ImmExtM));

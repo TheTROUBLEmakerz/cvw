@@ -8,42 +8,47 @@
 
 module ieu(
         input   logic           clk, reset,
-        input   logic           StallE, FlushE, ValidD, IsMulW,
+        input   logic           StallD, FlushD, StallE, FlushE, IsMulW,
         input   logic [1:0]     ForwardAE, ForwardBE,
-        input   logic [31:0]    InstrD, CSRout,
-        input   logic [31:0]    PCD,
+        input   logic [31:0]    Instr, CSRout,
+        input   logic [31:0]    PC,
+        output  logic [31:0]    PCD,
         output  logic           PCSrcE,
         output  logic [3:0]     WriteByteEnE,
         input   logic           RegWriteW,
         input   logic [1:0]     ResultSrcW,
         input   logic [31:0]    extout, IEUResultW, ReadDataW, MulResultW,
         input   logic [4:0]     RdW,
-        output  logic [31:0]    IEUAdrE, IEUResultE, FSrcAE, FSrcBE,ImmExtD, PCPredict,
-        input   logic [31:0]    ReadData, CSRW, ImmExtW,
-        output  logic [31:0]    CSRE,ImmExtE, PCLinkE,
+        output  logic [31:0]    IEUAdrE, IEUResultE, FSrcAE, FSrcBE,ImmExtD, // PCPredict,
+        input   logic [31:0]    ReadData, ImmExtW,
+        output  logic [31:0]    ImmExtE, PCLinkE,
         output  logic           MemRWE, RegWriteE, ValidE, BranchPrD, MisPredictE, IsMulE,
         // output  logic           IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc,
         output  logic [4:0]     RdE, Rs1E, Rs2E,
         output  logic [2:0]     Funct3E,
-        output  logic [1:0]     ResultSrcE
+        output  logic [1:0]     ResultSrcE,
+        output  logic [11:0]    CSRAddressE,
+        output  logic [31:0]    InstrD
     );
 
     logic  [31:0] Rd1D, Rd1E, Rd2D, Rd2E;
-    logic RegWrite, Jump, Branch, Eq, ALUResultSrc, Lt, JumpE, BranchE, ActualTakenE;
+    logic RegWrite, Jump, Branch, Eq, ALUResultSrc, Lt, JumpE, BranchE, ActualTakenE, ValidD;
     logic  [31:0] ResultW, extoutW;
     logic  [1:0]  ResultSrc;
     logic  [1:0]  ALUSrc;
     logic  [2:0]  ImmSrcD;
     logic  [1:0]  ALUControl;
-    logic         Funct7b5E, MemWrite, MemWriteE, Flag, BranchPrE, IsMul;
+    logic         Funct7b5E, MemWrite, MemWriteE, Flag, BranchPrE, IsMul, IsZba, IsZbs, IsZbaE, IsZbsE;
     logic  [31:0] PCE;
 
     logic         MemEn, ALUResultSrcE;
     logic  [1:0]  ALUSrcE,ALUControlE;
 
-    controller c(.JumpE, .BranchE, .IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .Eq, .Lt,
+
+    fetchreg fetchreg(.clk, .reset, .FlushD, .noStallD(~StallD), .PCF(PC), .InstrF(Instr), .PCD, .InstrD, .ValidD);
+    controller c(.JumpE, .BranchE, .IEUAdr(IEUAdrE[1:0]), .Op(InstrD[6:0]), .Funct3(InstrD[14:12]), .Eq, .Lt,
         .ALUResultSrc, .ResultSrc, .Funct7(InstrD[31:25]), .Jump, .Branch, .Funct3E, .MemWrite, // .WriteByteEn,
-        .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .MSB(InstrD[31]), .BranchPr(BranchPrD), .IsMul//, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsMul, .IsStore, .IsLoad, .IsLui, .IsAuipc
+        .ALUSrc, .RegWrite, .ImmSrc(ImmSrcD), .ALUControl, .MemEn, .MSB(InstrD[31]), .BranchPr(BranchPrD), .IsMul, .IsZba//, .IsAdd, .IsBranch, .IsBranchTaken, .IsJump, .IsMul, .IsStore, .IsLoad, .IsLui, .IsAuipc
     `ifdef DEBUG
         , .insn_debug(InstrD)
     `endif
@@ -55,15 +60,16 @@ module ieu(
 
     // immediate extend unit
     extend ext(.Instr(InstrD[31:7]), .ImmSrc(ImmSrcD), .ImmExt(ImmExtD));
-    adder PredictPC(PCD, ImmExtD, PCPredict);
+    //adder PredictPC(PCD, ImmExtD, PCPredict);
 
     decodereg decodereg(.BranchE, .Branch, .clk, .reset, .FlushE, .noStallE(~StallE), .RegWrite, .MemRW(MemEn), .ALUResultSrc, .Jump, .ALUControl, .ResultSrc, .ALUSrc, .PCD, .Rd1(Rd1D), .Rd2(Rd2D), .ImmExt(ImmExtD), .Funct3(InstrD[14:12]), .Funct7b5(InstrD[30]), .RdD(InstrD[11:7]), .Rs1D(InstrD[19:15]), .Rs2D(InstrD[24:20]),
-                        .RegWriteE, .MemWrite, .MemWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .RdE, .Rs1E, .Rs2E, .CSRD(CSRout), .CSRE, .ValidD, .ValidE, .BranchPr(BranchPrD), .BranchPrE, .IsMul, .IsMulE);
+                        .RegWriteE, .MemWrite, .MemWriteE, .ResultSrcE, .MemRWE, .ALUResultSrcE, .JumpE, .ALUControlE, .ALUSrcE, .PCE, .Rd1E, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .RdE, .Rs1E, .Rs2E, .CSRAddressD(InstrD[31:20]), .CSRAddressE, .ValidD, .ValidE, .BranchPr(BranchPrD), .BranchPrE, .IsMul, .IsMulE, .IsZba, .IsZbaE); //, .IsZbs, .IsZbsE);
 
-    datapath dp(.clk, .reset, .Rd1E, .PCLinkE, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .ALUControlE, .Eq, .Lt, .PCE, .IEUAdrE, .FSrcBE, .FSrcAE, .IEUResultE, .ALUResultSrcE, .JumpE, .ALUSrcE, .extout, .ResultW, .ForwardAE, .ForwardBE); //IsMul,
-    // mux3 #(32) resultmux(IEUResultW, ReadDataW, CSRW, ResultSrcW, ResultW);
+    datapath dp(.clk, .reset, .Rd1E, .PCLinkE, .Rd2E, .ImmExtE, .Funct3E, .Funct7b5E, .ALUControlE, .Eq, .Lt, .PCE, .IEUAdrE, .FSrcBE, .FSrcAE, .IEUResultE, .ALUResultSrcE, .JumpE, .ALUSrcE, .extout, .ResultW, .ForwardAE, .ForwardBE, .IsZbaE); //IsMul,
+
+    // write back stage
     mux2 #(32) extmux(IEUResultW, MulResultW, IsMulW, extoutW);
-    mux4 #(32) resultmux(extoutW, ReadDataW, ImmExtW, CSRW, ResultSrcW, ResultW);
+    mux4 #(32) resultmux(extoutW, ReadDataW, ImmExtW, CSRout, ResultSrcW, ResultW);
 
     always_comb begin
         WriteByteEnE = 4'b0000;

@@ -8,7 +8,6 @@ module CSR(
     output  logic [31:0]    CSRout
     );
 
-    //logic [31:0] rf;
     logic [63:0] rdcycle, rdtime, rdinsret;
     logic [63:0] hpm3, hpm4, hpm5, hpm6, hpm7, hpm8, hpm9, hpm10;
 
@@ -56,7 +55,6 @@ module CSR(
             12'hC81: CSRout = rdtime[63:32];
             12'hC02: CSRout = rdinsret[31:0];
             12'hC82: CSRout = rdinsret[63:32];
-
             12'hC03: CSRout = hpm3[31:0];
             12'hC83: CSRout = hpm3[63:32];
             12'hC04: CSRout = hpm4[31:0];
