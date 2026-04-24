@@ -1,6 +1,6 @@
 module priorityencoder(
     input logic[31:0] A,
-    output logic[4:0] ZCount
+    output logic[31:0] ZCount
     );
 
     logic [31:0] y;
@@ -24,5 +24,6 @@ module priorityencoder(
     mux2 #(2)  b1mux(fours[1:0], fours[3:2], ~|fours[1:0], twos);
     assign ZCount[1] = ~|fours[1:0];
     assign ZCount[0] = twos[1];
+    assign ZCount[31:5] = 27'b0;
 
 endmodule

@@ -2,35 +2,38 @@
 
 module decodereg(
         input  logic        clk, reset,
-        input  logic        FlushE, noStallE, ValidD, IsMul, IsZba, //IsZbs,
-        input  logic        RegWrite, MemRW, ALUResultSrc, Jump,
-        input  logic [1:0]  ResultSrc, ALUSrc, ALUControl,
+        input  logic        FlushE, noStallE, ValidD, IsMul, IsZba, IsZbb,
+        input  logic        RegWrite, MemRW, Jump,
+        input  logic [1:0]  ResultSrc, ALUSrc, ALUResultSrc, ALUControl,
         input  logic [31:0] PCD, Rd1, Rd2, ImmExt,
         input  logic [11:0] CSRAddressD,
         input  logic [2:0]  Funct3,
-        input  logic        Funct7b5, Branch, MemWrite, BranchPr,
+        input  logic [6:0]  Funct7,
+        input  logic        Branch, MemWrite, BranchPr,
         input  logic [4:0]  RdD,Rs1D, Rs2D,
-        output logic        RegWriteE, MemRWE, ALUResultSrcE, JumpE,MemWriteE,
-        output logic [1:0]  ALUSrcE, ALUControlE, ResultSrcE,
+        output logic        RegWriteE, MemRWE, JumpE,MemWriteE,
+        output logic [1:0]  ALUSrcE, ALUControlE, ALUResultSrcE, ResultSrcE,
         output logic [31:0] PCE, Rd1E, Rd2E, ImmExtE,
         output logic [11:0] CSRAddressE,
         output logic [2:0]  Funct3E,
-        output logic        Funct7b5E, BranchE, ValidE, BranchPrE, IsMulE, IsZbaE, //IsZbsE,
+        output logic [6:0]  Funct7E,
+        output logic        BranchE, ValidE, BranchPrE, IsMulE, IsZbaE, IsZbbE,
         output logic [4:0]  RdE, Rs1E, Rs2E
     );
 
-    logic QRegWrite, QMemRW, QALUResultSrc, QJump, QFunct7, QBranch, QMemWrite, QValid, QBranchPr, QIsMul, QIsZba, QIsZbs;
-    logic [1:0] QResultSrc, QALUSrc, QALUControl;
+    logic QRegWrite, QMemRW, QJump, QBranch, QMemWrite, QValid, QBranchPr, QIsMul, QIsZba, QIsZbb;
+    logic [1:0] QResultSrc, QALUSrc, QALUResultSrc, QALUControl;
     logic [31:0] QPC, QRd1, QRd2, QImmExt;
     logic [11:0] QCSRAddress;
     logic [2:0] QFunct3;
     logic [4:0] QRd, QRs1, QRs2;
+    logic [6:0] QFunct7;
 
     mux2 #(1) IsZbamux(IsZbaE, (IsZba & ~FlushE), noStallE, QIsZba);
     flopr #(1) IsZbareg(.clk, .reset, .D(QIsZba), .Q(IsZbaE));
 
-    //mux2 #(1) IsZbsmux(IsZbsE, (IsZbs & ~FlushE), noStallE, QIsZbs);
-    //flopr #(1) IsZbsreg(.clk, .reset, .D(QIsZbs), .Q(IsZbsE));
+    mux2 #(1) IsZbbmux(IsZbbE, (IsZbb & ~FlushE), noStallE, QIsZbb);
+    flopr #(1) IsZbbreg(.clk, .reset, .D(QIsZbb), .Q(IsZbbE));
 
     mux2 #(1) IsMulmux(IsMulE, (IsMul & ~FlushE), noStallE, QIsMul);
     flopr #(1) IsMulreg(.clk, .reset, .D(QIsMul), .Q(IsMulE));
@@ -53,8 +56,8 @@ module decodereg(
     mux2 #(1) MemRWmux(MemRWE, (MemRW & ~FlushE), noStallE, QMemRW);
     flopr #(1) MemRWreg(.clk, .reset, .D(QMemRW), .Q(MemRWE));
 
-    mux2 #(1) ALUResultSrcmux(ALUResultSrcE, (ALUResultSrc & ~FlushE), noStallE, QALUResultSrc);
-    flopr #(1) ALUResultSrcreg(.clk, .reset, .D(QALUResultSrc), .Q(ALUResultSrcE));
+    mux2 #(2) ALUResultSrcmux(ALUResultSrcE, (ALUResultSrc & {2{~FlushE}}), noStallE, QALUResultSrc);
+    flopr #(2) ALUResultSrcreg(.clk, .reset, .D(QALUResultSrc), .Q(ALUResultSrcE));
 
     mux2 #(1) Jumpmux(JumpE, (Jump & ~FlushE), noStallE, QJump);
     flopr #(1) Jumpreg(.clk, .reset, .D(QJump), .Q(JumpE));
@@ -86,8 +89,8 @@ module decodereg(
     mux2 #(3) Funct3mux(Funct3E, (Funct3 & {3{~FlushE}}), noStallE, QFunct3);
     flopr #(3) Funct3reg(.clk, .reset, .D(QFunct3), .Q(Funct3E));
 
-    mux2 #(1) Funct7mux(Funct7b5E, (Funct7b5 & ~FlushE), noStallE, QFunct7);
-    flopr #(1) Funct7reg(.clk, .reset, .D(QFunct7), .Q(Funct7b5E));
+    mux2 #(7) Funct7mux(Funct7E, (Funct7 & {7{~FlushE}}), noStallE, QFunct7);
+    flopr #(7) Funct7reg(.clk, .reset, .D(QFunct7), .Q(Funct7E));
 
     mux2 #(5) Rdmux(RdE, (RdD & {5{~FlushE}}), noStallE, QRd);
     flopr #(5) Rdreg(.clk, .reset, .D(QRd), .Q(RdE));

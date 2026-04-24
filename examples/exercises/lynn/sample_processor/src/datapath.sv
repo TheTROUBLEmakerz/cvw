@@ -6,22 +6,24 @@ module datapath(
         input   logic           clk, reset,//
         input   logic [31:0]    Rd1E, Rd2E, ImmExtE,//
         input   logic [2:0]     Funct3E,//
-        input   logic           Funct7b5E, //
+        input   logic [6:0]     Funct7E, //
         input   logic [1:0]     ALUControlE, //
         output  logic           Eq, Lt, //
         input   logic [31:0]    PCE, //
         output  logic [31:0]    IEUAdrE, FSrcBE, FSrcAE, IEUResultE, PCLinkE,//
-        input   logic           IsZbaE,
-        input   logic           ALUResultSrcE, JumpE,//
-        input   logic [1:0]     ALUSrcE, //
+        input   logic           IsZbaE, IsZbbE,
+        input   logic           JumpE,//
+        input   logic [1:0]     ALUResultSrcE, ALUSrcE, //
         input   logic [31:0]    extout, ResultW, //
         input   logic [1:0]     ForwardAE, ForwardBE //
     );
 
-    logic [31:0] SrcAE, SrcBE, ALUResultE, AltResultE, shaddout;
+    logic [31:0] SrcAE, SrcBE, ALUResultE, AltResultE, shaddout, revCZ, revB8, ZeroCount, OnesCount, CZ, Count;
     logic [31:0] MulResult, CalcOut; //for mult unit
     logic [31:0] ExecResult, minmaxout;  // ALUResult with optional MUL override
     logic [2:0] ALUFunct3E;
+    logic [31:0] orcb, sextb, sexth, zexth, extdbmu, izbbout;
+    logic countsel;
 
     mux3 #(32) top3mux(Rd1E, ResultW, extout, ForwardAE, FSrcAE);
     mux3 #(32) bot3mux(Rd2E, ResultW, extout, ForwardBE, FSrcBE);
@@ -33,15 +35,42 @@ module datapath(
     mux2 #(32) srcbmux(FSrcBE, ImmExtE, ALUSrcE[0], SrcBE);
 
     assign ALUFunct3E = IsZbaE ? 3'b000 : Funct3E;
-    alu alu(.SrcA(SrcAE), .SrcB(SrcBE), .ALUControl(ALUControlE), .Funct3(ALUFunct3E), .ALUResult(ALUResultE), .IEUAdr(IEUAdrE), .Funct7b5E);
-    // multiplier multiplier(.R1(FSrcAE), .R2(FSrcBE), .funct3(Funct3E), .MulResult); // need to look later really wrong
+    alu alu(.SrcA(SrcAE), .SrcB(SrcBE), .ALUControl(ALUControlE), .Funct3(ALUFunct3E), .ALUResult(ALUResultE), .IEUAdr(IEUAdrE), .Funct7E, .IsZbbE);
+    // multiplier multiplier(.R1(FSrcAE), .R2(FSrcBE), .funct3(Funct3E), .MulResult, .IsZbbE); // need to look later really wrong
 
     // mux2 #(32) ieuresultmux(ALUResult, PCPlus4, ALUResultSrc, IEUResult);
     // mux4 #(32) resultmux(CalcOut, ImmLoad, ImmExt, CSRout, ResultSrc, Result);
 
     adder pcadd4E(PCE, 32'd4, PCLinkE);
     mux2 #(32) altmux(ImmExtE, PCLinkE, JumpE, AltResultE);
-    mux2 #(32) ieuresultmux(ALUResultE, AltResultE, ALUResultSrcE, IEUResultE); // TODO - add minmaxout
+
+    // reversals
+    reversal #(1) revC(FSrcAE, revCZ); // reverse for clz instr
+    reversal #(8) revB(FSrcAE, revB8); // rev8 instr
+
+    assign CZ = Rd2E[0] ? FSrcAE : revCZ;
+
+    // count bits
+    priorityencoder countzero(CZ, ZeroCount);
+    cpop cpop(FSrcAE, OnesCount);
+
+    mux2 #(32) countmux(ZeroCount, OnesCount, Rd2E[1], Count);
+
+    // extenders
+    assign zexth = {16'b0, FSrcAE[15:0]};
+    assign sextb = {{24{FSrcAE[7]}}, FSrcAE[7:0]};
+    assign sexth = {{16{FSrcAE[15]}}, FSrcAE[15:0]};
+
+    // combine bytes
+    assign orcb = {{4{|FSrcAE[31:28]}}, {4{|FSrcAE[27:24]}},{4{|FSrcAE[23:20]}},{4{|FSrcAE[19:16]}},{4{|FSrcAE[15:12]}},{4{|FSrcAE[11:8]}},{4{|FSrcAE[7:4]}}, {4{|FSrcAE[3:0]}}};
+
+    mux4 #(32) extdmux(zexth, sextb, orcb, sexth, {Rd2E[0],Rd2E[1] ^ Rd2E[2]}, extdbmu);
+
+    assign countsel = (Funct3E == 3'b001) & ~Rd2E[2];
+    mux3 #(32) ibmumux(extdbmu, Count, revB8, {Rd2E[3], countsel}, izbbout);
+
+    // final big mux
+    mux4 #(32) ieuresultmux(ALUResultE, AltResultE, minmaxout, izbbout, ALUResultSrcE, IEUResultE); // TODO - add minmaxout
 
 
 
