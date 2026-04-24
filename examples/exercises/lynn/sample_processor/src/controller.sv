@@ -38,17 +38,21 @@ module controller(
     // Main decoder
     always_comb
         case(Op)
-            // RegWrite_ImmSrc_ALUSrc_ALUOp_ALUResultSrc_MemWrite_ResultSrc_Branch_Jump_Load_IsMul_IsZba_IsZbs
+            // RegWrite_ImmSrc_ALUSrc_ALUOp_ALUResultSrc_MemWrite_ResultSrc_Branch_Jump_Load_IsMul_IsZba_IsZbb
             7'b0000011: controls = 17'b1_000_01_0_0_0_01_0_0_1_0_0_0; // lw
             7'b0100011: controls = 17'b0_001_01_0_0_1_00_0_0_1_0_0_0; // sw
             7'b0110011:
                 case(Funct7)
-                    7'b0000001: if(~Funct3[2]) controls = 17'b1_000_00_1_0_0_00_0_0_0_1_0_0;
+                    7'b0000001: if(~Funct3[2]) controls = 17'b1_000_00_1_0_0_00_0_0_0_1_0_0; // Mul
                                 else controls = 17'b1_000_00_1_0_0_00_0_0_0_0_0_0;
-                    7'b0010000: controls = 17'b1_000_00_1_0_0_00_0_0_0_0_1_0; //Zba
+                    7'b0010000: controls = 17'b1_000_00_1_0_0_00_0_0_0_0_1_0; // Zba
                     //7'b0100100: controls = 17'b1_000_00_1_0_0_00_0_0_0_0_0_1;
                     //7'b0110100: controls = 17'b1_000_00_1_0_0_00_0_0_0_0_0_1;
                     //7'b0010100: controls = 17'b1_000_00_1_0_0_00_0_0_0_0_0_1;
+                    7'b0000101: controls = 17'b1_000_00_0_0_
+                    7'b0100000:
+                    7'b0110000:
+                    7'b0000100:
                     default: controls = 17'b1_000_00_1_0_0_00_0_0_0_0_0_0; // R-type
                 endcase
             7'b0010011:
