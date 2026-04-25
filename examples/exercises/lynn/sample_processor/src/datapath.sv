@@ -35,7 +35,7 @@ module datapath(
     mux2 #(32) srcbmux(FSrcBE, ImmExtE, ALUSrcE[0], SrcBE);
 
     assign ALUFunct3E = IsZbaE ? 3'b000 : Funct3E;
-    alu alu(.SrcA(SrcAE), .SrcB(SrcBE), .ALUControl(ALUControlE), .Funct3(ALUFunct3E), .ALUResult(ALUResultE), .IEUAdr(IEUAdrE), .Funct7E, .IsZbbE);
+    alu alu(.SrcA(SrcAE), .SrcB(SrcBE), .ALUControl(ALUControlE), .Funct3(ALUFunct3E), .IsZbaE, .ALUResult(ALUResultE), .IEUAdr(IEUAdrE), .Funct7E, .IsZbbE);
     // multiplier multiplier(.R1(FSrcAE), .R2(FSrcBE), .funct3(Funct3E), .MulResult, .IsZbbE); // need to look later really wrong
 
     // mux2 #(32) ieuresultmux(ALUResult, PCPlus4, ALUResultSrc, IEUResult);

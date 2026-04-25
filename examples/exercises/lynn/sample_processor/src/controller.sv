@@ -8,6 +8,7 @@ module controller(
         input   logic [1:0]   IEUAdr,
         input   logic [6:0]   Op, Funct7,
         input   logic         Lt, Eq,
+        input   logic [4:0]   Immbits,
         input   logic [2:0]   Funct3, Funct3E,
         input   logic         MSB,
         output  logic [1:0]   ALUResultSrc, ResultSrc,
@@ -60,13 +61,36 @@ module controller(
                     {7'b0100000, 3'b110},
                     {7'b0100000, 3'b111}: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_1; // xnor/orn/andn
 
+                    // rol
+                    {7'b0110000, 3'b001}: begin
+                        case (Immbits)
+                            5'b00000: controls = 18'b1_000_00_1_11_0_00_0_0_0_0_0_1; // clz
+                            5'b00001: controls = 18'b1_000_00_1_11_0_00_0_0_0_0_0_1; // ctz
+                            5'b00010: controls = 18'b1_000_00_1_11_0_00_0_0_0_0_0_1; // cpop
+                            5'b00100: controls = 18'b1_000_00_1_11_0_00_0_0_0_0_0_1; // sext.b
+                            default:  controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_1;
+                        endcase
+                    end
+
+                    // ror
+                    {7'b0110000, 3'b101}: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_1;
+
                     default: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_0; // normal R-type, including sub
                 endcase
             7'b0010011:
                 casez ({Funct7, Funct3})
                     {7'b0010100, 3'b101}: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // orc.b
-                    {7'b0110000, 3'b001}: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // clz/ctz/cpop
                     {7'b0110100, 3'b101}: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // rev8
+                    {7'b0110000, 3'b101}: controls = 18'b1_000_01_1_00_0_00_0_0_0_0_0_1; // rori
+                    {7'b0110000, 3'b001}: begin
+                        case (Immbits)
+                            5'b00000: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // clz
+                            5'b00001: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // ctz
+                            5'b00010: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // cpop
+                            5'b00100: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // sext
+                            default:  controls = 18'b1_000_01_1_00_0_00_0_0_0_0_0_1;
+                        endcase
+                    end
                     default:              controls = 18'b1_000_01_1_00_0_00_0_0_0_0_0_0; // normal I-type ALU
                 endcase
             7'b1100011: controls = 18'b0_010_11_0_00_0_00_1_0_0_0_0_0; // b-type

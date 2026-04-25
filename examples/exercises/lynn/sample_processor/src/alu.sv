@@ -3,7 +3,7 @@ module alu(
     input  logic [1:0]  ALUControl,
     input  logic [2:0]  Funct3,
     input  logic [6:0]  Funct7E,
-    input  logic        IsZbbE,
+    input  logic        IsZbbE,IsZbaE,
     output logic [31:0] ALUResult, IEUAdr
 );
 
@@ -12,6 +12,7 @@ module alu(
     logic       ALUOp, Sub, Overflow, Neg, LT;
     logic [2:0]  ALUFunct;
     logic [63:0] midALUResult;
+    logic isShiftRight;
 
     assign {Sub, ALUOp} = ALUControl;
 
@@ -59,7 +60,21 @@ module alu(
         endcase
     end
 
-    assign ALUResult = IsZbbE ? midALUResult[63:32] | midALUResult[31:0]
-                        : ((Funct7E==7'b0) & (Funct3==3'b101) ? midALUResult[63:32] : midALUResult[31:0]); //choose top only if srl
+    // assign ALUResult = IsZbbE ? midALUResult[63:32] | midALUResult[31:0]
+    //                     : ((Funct7E==7'b0) & (Funct3==3'b101) ? midALUResult[63:32] : midALUResult[31:0]); //choose top only if srl
+
+
+    assign isShiftRight =
+        ALUOp &&
+        !IsZbbE &&
+        !IsZbaE &&
+        (Funct3 == 3'b101) &&
+        !(Funct7E[5] & ~Funct7E[4]); // only SRL/SRLI uses upper half
+
+    assign ALUResult =
+        IsZbbE ? (midALUResult[63:32] | midALUResult[31:0]) :
+        isShiftRight ? midALUResult[63:32] :
+        midALUResult[31:0];
+
     //assign ALUResult = (Funct7E==7'b0 & Funct3==3'b101 ? midALUResult[63:32] : midALUResult[31:0]); //choose top only if srl
 endmodule
