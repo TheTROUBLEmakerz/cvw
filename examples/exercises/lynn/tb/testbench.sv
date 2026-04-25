@@ -65,7 +65,9 @@ module testbench;
       // $display("MemEn: %b",
       //         MemEn
       //         );
-      //  $display("x28: %h", dut.ieu.dp.rf.rf[28]);
+      //  $display("x1: %h", dut.ieu.rf.rf[1]);
+      //  $display("WB: RdW=%0d ResultW=%h ResultSrcW=%b IEUResultW=%h ImmExtW=%h",
+      //            dut.ieu.RdW, dut.ieu.ResultW, dut.ieu.ResultSrcW, dut.ieu.IEUResultW, dut.ieu.ImmExtW);
       // $display("DataAdr: %h, t0: %h",
       //         DataAdr,
       //         dut.ieu.dp.rf.rf[5]

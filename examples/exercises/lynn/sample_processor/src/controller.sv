@@ -41,25 +41,33 @@ module controller(
             7'b0000011: controls = 18'b1_000_01_0_00_0_01_0_0_1_0_0_0; // lw
             7'b0100011: controls = 18'b0_001_01_0_00_1_00_0_0_1_0_0_0; // sw
             7'b0110011:
-                case(Funct7)
-                    7'b0000001: if(~Funct3[2]) controls = 18'b1_000_00_1_00_0_00_0_0_0_1_0_0; // Mul
-                                else controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_0;
-                    7'b0010000: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_1_0; // Zba
-                    7'b0000101: controls = 18'b1_000_00_1_10_0_00_0_0_0_0_0_1; // min / max
-                        // for all the max/min --> comes from cmp unit appart from alu
-                        // adding another input to the ALUResultMux - ALUResultSrc - 10
-                    7'b0000100: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // zero ext.h
-                        // ALUResultRrc - 11
-                    7'b0100000: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_1; // not - logic
-                    7'b0110000: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_1; // rotate
-                    default: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_0; // R-type
+                case ({Funct7, Funct3})
+                    {7'b0000001, 3'b000},
+                    {7'b0000001, 3'b001},
+                    {7'b0000001, 3'b010},
+                    {7'b0000001, 3'b011}: controls = 18'b1_000_00_1_00_0_00_0_0_0_1_0_0; // mul group
+
+                    {7'b0010000, 3'b010},
+                    {7'b0010000, 3'b100},
+                    {7'b0010000, 3'b110}: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_1_0; // Zba
+
+                    {7'b0000101, 3'b100},
+                    {7'b0000101, 3'b101},
+                    {7'b0000101, 3'b110},
+                    {7'b0000101, 3'b111}: controls = 18'b1_000_00_1_10_0_00_0_0_0_0_0_1; // min/max
+
+                    {7'b0100000, 3'b100},
+                    {7'b0100000, 3'b110},
+                    {7'b0100000, 3'b111}: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_1; // xnor/orn/andn
+
+                    default: controls = 18'b1_000_00_1_00_0_00_0_0_0_0_0_0; // normal R-type, including sub
                 endcase
             7'b0010011:
-                case(Funct7)
-                    7'b0010100: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // orc.b   TODO
-                    7'b0110000: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // count / sign-ext / rotateRi TODO
-                    7'b0110100: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // byte-wise rev TODO
-                    default: controls = 18'b1_000_01_1_00_0_00_0_0_0_0_0_0; // I-type ALU
+                casez ({Funct7, Funct3})
+                    {7'b0010100, 3'b101}: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // orc.b
+                    {7'b0110000, 3'b001}: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // clz/ctz/cpop
+                    {7'b0110100, 3'b101}: controls = 18'b1_000_01_1_11_0_00_0_0_0_0_0_1; // rev8
+                    default:              controls = 18'b1_000_01_1_00_0_00_0_0_0_0_0_0; // normal I-type ALU
                 endcase
             7'b1100011: controls = 18'b0_010_11_0_00_0_00_1_0_0_0_0_0; // b-type
             7'b1101111: controls = 18'b1_011_11_0_01_0_00_0_1_0_0_0_0; // jal

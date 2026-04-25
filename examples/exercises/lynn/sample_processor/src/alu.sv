@@ -7,7 +7,7 @@ module alu(
     output logic [31:0] ALUResult, IEUAdr
 );
 
-    logic [31:0] CondInvb, Sum, SLT;
+    logic [31:0] CondInvb, Sum, SLT, CondInvb2;
     logic [31:0] AddSum;
     logic       ALUOp, Sub, Overflow, Neg, LT;
     logic [2:0]  ALUFunct;
@@ -20,8 +20,9 @@ module alu(
     assign IEUAdr = AddSum;
 
     // Add/sub path for ALUResult when needed
-    assign CondInvb = Sub ? ~SrcB + {{31{1'b0}}, Sub} : SrcB;
-    assign Sum      = SrcA + CondInvb;
+    assign CondInvb = Sub ? ~SrcB : SrcB;
+    assign CondInvb2 = Sub ? (~SrcB + 32'b1) : SrcB;
+    assign Sum      = SrcA + CondInvb2;
 
     // SLT (signed) based on subtraction result
     assign Overflow = Sub &
@@ -31,7 +32,7 @@ module alu(
     assign LT       = Neg ^ Overflow;
     assign SLT      = {31'b0, LT};
 
-    assign ALUFunct = (Funct3 & {3{ALUOp}}) ^ {1'b0, ~Funct7E[4] & IsZbbE & ~Funct3[0], 1'b0};
+    assign ALUFunct = (Funct3 & {3{ALUOp}}) ^ {1'b0, ~Funct7E[4] & IsZbbE & ALUOp & ~Funct3[0], 1'b0};
     //assign SrcA64 = {32'b0, SrcA};
     always_comb begin
         case (ALUFunct)
@@ -59,6 +60,6 @@ module alu(
     end
 
     assign ALUResult = IsZbbE ? midALUResult[63:32] | midALUResult[31:0]
-                        : (Funct7E==7'b0 & Funct3==3'b101 ? midALUResult[63:32] : midALUResult[31:0]); //choose top only if srl
+                        : ((Funct7E==7'b0) & (Funct3==3'b101) ? midALUResult[63:32] : midALUResult[31:0]); //choose top only if srl
     //assign ALUResult = (Funct7E==7'b0 & Funct3==3'b101 ? midALUResult[63:32] : midALUResult[31:0]); //choose top only if srl
 endmodule
