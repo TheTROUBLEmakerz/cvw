@@ -7,13 +7,14 @@ module multiplier (
     output logic [31:0] MulResult,
     input  logic        FlushM, noStallM
 );
-
     logic a_sign, b_sign;
     logic [32:0] a33, b33;
     logic signed [65:0] prod66;
+    logic [32:0] QAout, QBout, a33M, b33M;
 
     // Execute Stage
     // Sign extend
+
     always_comb begin
     unique case (Funct3)
         3'b001: begin a_sign = R1[31]; b_sign = R2[31]; end // mulh
