@@ -13,10 +13,12 @@ module priorityencoder(
     logic [31:0] allZ, hasOne;
 
     assign allZ = 32;
+
     assign y[0] = A[0];
     for (i=1; i<32; i++) begin : poh
         assign y[i] = A[i] & ~|A[i-1:0];
     end
+
     assign hasOne[4] = ~|y[15:0];
     mux2 #(16) b4mux(y[15:0], y[31:16], hasOne[4], sixteens);
     mux2 #(8)  b3mux(sixteens[7:0], sixteens[15:8], ~|sixteens[7:0], eights);

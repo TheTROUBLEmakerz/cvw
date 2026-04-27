@@ -13,5 +13,4 @@ module cpop(
     end
 
     assign OnesCount = {26'b0, sum};
-
 endmodule

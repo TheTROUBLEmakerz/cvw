@@ -42,7 +42,7 @@ module hazard(
     assign StallW = 0;
     assign FlushW = 0;
 
-    assign FlushD = MisPredictE | BranchPrD; //
+    assign FlushD = MisPredictE | BranchPrD;
     assign FlushE = lwStall | mulStall | MisPredictE | csrStall;
 
 endmodule

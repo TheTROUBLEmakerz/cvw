@@ -36,7 +36,6 @@ module alu(
     assign shiftSrcA = (Funct3==3'b001) ? revSrcA: SrcA;
 
     assign ALUFunct = (Funct3 & {3{ALUOp}}); // ^ {1'b0, ~Funct7E[4] & IsZbbE & ALUOp & ~Funct3[0], 1'b0};
-    //assign SrcA64 = {32'b0, SrcA};
     always_comb begin
         case (ALUFunct)
             3'b000: begin
@@ -89,21 +88,4 @@ module alu(
     reversal #(1) revRes(ALUFinal, revALUResult);
 
     assign ALUResult = (ALUFunct==3'b001) ? revALUResult : ALUFinal;
-    // assign ALUFinal = IsZbbE ? midALUResult[63:32] | midALUResult[31:0]
-    //                     : ((Funct7E==7'b0) & (Funct3==3'b101) ? midALUResult[63:32] : midALUResult[31:0]); //choose top only if srl
-
-
-    /* assign isShiftRight =
-        ALUOp &&
-        !IsZbbE &&
-        !IsZbaE &&
-        (Funct3 == 3'b101) &&
-        !(Funct7E[5] & ~Funct7E[4]); // only SRL/SRLI uses upper half
-
-    assign ALUFinal =
-        IsZbbE ? (midALUResult[63:32] | midALUResult[31:0]) :
-        isShiftRight ? midALUResult[63:32] :
-        midALUResult[31:0]; */
-
-    //assign ALUFinal = (Funct7E==7'b0 & Funct3==3'b101 ? midALUResult[63:32] : midALUResult[31:0]); //choose top only if srl
 endmodule

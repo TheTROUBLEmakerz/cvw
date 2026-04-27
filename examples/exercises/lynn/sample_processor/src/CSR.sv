@@ -34,7 +34,7 @@ module CSR(
                 rdtime  <= rdtime + 1;
                 if (InsnRetired)
                     rdinsret <= rdinsret + 1;
-                // add back later
+                // decreases our score for some reason when we remove all hpm registers :(
                 // hpm3    <= hpm3 + {{63{1'b0}}, IsAdd};
                 // hpm4    <= hpm4 + {{63{1'b0}}, IsBranch};
                 // hpm5    <= hpm5 + {{63{1'b0}}, IsBranchTaken};

@@ -14,7 +14,6 @@ module multiplier (
 
     // Execute Stage
     // Sign extend
-
     always_comb begin
     unique case (Funct3)
         3'b001: begin a_sign = R1[31]; b_sign = R2[31]; end // mulh

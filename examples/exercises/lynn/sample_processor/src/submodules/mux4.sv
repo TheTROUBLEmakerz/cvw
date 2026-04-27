@@ -1,6 +1,3 @@
-
-
-
 module mux4 #(parameter WIDTH) (
         input   logic [WIDTH-1:0]   A,B,C,D,
         input   logic [1:0]         select,

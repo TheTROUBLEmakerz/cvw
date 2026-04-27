@@ -8,21 +8,20 @@ module riscvsingle (
         input   logic           clk,
         input   logic           reset,
 
-        output  logic [31:0]    PC,  // instruction memory target address
-        input   logic [31:0]    Instr, // instruction memory read data
+        output  logic [31:0]    PC,
+        input   logic [31:0]    Instr,
 
-        output  logic [31:0]    IEUAdr,  // data memory target address
-        input   logic [31:0]    ReadData, // data memory read data
-        output  logic [31:0]    WriteData, // data memory write data
+        output  logic [31:0]    IEUAdr,
+        input   logic [31:0]    ReadData,
+        output  logic [31:0]    WriteData,
 
         output  logic           MemEn,
         output  logic           WriteEn,
-        output  logic [3:0]     WriteByteEn  // strobes, 1 hot stating weather a byte should be written on a store
+        output  logic [3:0]     WriteByteEn
     );
 
     logic [31:0] CSRout, PCE, extout;
     logic PCSrcE, MemRWE, BranchPrD, MisPredictE;
-//     logic IsAdd, IsBranch, IsBranchTaken, IsJump, IsStore, IsLoad, IsLui, IsAuipc;
     logic [31:0] PCD;
     logic [31:0] InstrD;
     logic [31:0] IEUAdrE, IEUResultE, IEUResultW, ReadDataW;

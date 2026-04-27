@@ -22,7 +22,6 @@ module lsu(
         output  logic [31:0]    ImmExtW, MulResultW,
         output  logic [3:0]     WriteByteEnM,
         output  logic [11:0]    CSRAddressW
-        // fill in
     );
 
     logic ValidM, IsMulM;
@@ -34,9 +33,8 @@ module lsu(
                         .IEUAdrE, .FSrcBE, .Funct3E, .RdE, .ImmExtE, .ImmExtM, .RegWriteM, .ResultSrcM, .MemRWM(MemEn), .IEUResultM,
                         .IEUAdrM(IEUAdr), .FSrcBM, .Funct3M, .RdM, .WriteByteEn, .WriteByteEnM, .ValidE, .ValidM, .CSRAddressE, .CSRAddressM);
 
-    ext2 ext2(Funct3M, IEUAdr[2:0], ReadData, ReadDataM); // this is for load/store
+    ext2 ext2(Funct3M, IEUAdr[2:0], ReadData, ReadDataM);
 
-    // mux2 #(32) extmux(IEUResultM, MulResult, IsMulM, extoutM);
     always_comb begin
         case (ResultSrcM)
             2'b10: extout = ImmExtM; // LUI → ImmExtM
@@ -44,9 +42,7 @@ module lsu(
             default: extout = IEUResultM; // ALU
         endcase
     end
-    //mux2 #(32) fwdmuxM(IEUResultM, ImmExtM, ForwardSelM[0], extout);
 
-    // mux4 #(32) resultmuxM(IEUResultM, ReadDataM, ImmExtM, CSRM, ResultSrcM, ResultM);
     always_comb
     begin
         case(Funct3M[1:0])
@@ -56,7 +52,6 @@ module lsu(
             default: WriteData = 32'b0;
         endcase
     end
-
 
     memoryreg memoryreg(.clk, .reset, .FlushW, .noStallW(~StallW), .RegWriteM, .ResultSrcM, .IEUResultM, .MulResult, .MulResultW, .CSRAddressM, .CSRAddressW,
                         .ReadDataM, .RegWriteW, .IsMulM, .IsMulW, .ResultSrcW, .IEUResultW, .ReadDataW, .RdW, .RdM, .ImmExtM, .ImmExtW, .ValidM, .ValidW);

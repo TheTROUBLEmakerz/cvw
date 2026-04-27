@@ -1,6 +1,3 @@
-
-
-
 module cmp(
     input  logic [31:0] R1, R2,
     input  logic        unsignedCmp,   // Funct3[1]: 0=signed (BLT/BGE), 1=unsigned (BLTU/BGEU)
