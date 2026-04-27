@@ -8,41 +8,31 @@ module multiplier (
     input  logic        FlushM, noStallM
 );
 
-    logic        [63:0] a_s;
-    logic        [63:0] b_s;
-    logic        [63:0] a_u;
-    logic        [63:0] b_u;
-    // logic        [63:0] prod, prodM, Qprod;
-    logic        [63:0] prod, AoutM, BoutM, QAout, QBout;
-    logic        [63:0] Aout, Bout;
+    logic a_sign, b_sign;
+    logic [32:0] a33, b33;
+    logic signed [65:0] prod66;
 
     // Execute Stage
     // Sign extend
-    assign    a_s = {{32{R1[31]}}, R1};   // sign-extend R1 to 64
-    assign    b_s = {{32{R2[31]}}, R2};   // sign-extend R2 to 64
-    assign    a_u = {{32{1'b0}}, R1};              // zero-extend R1 to 64
-    assign    b_u = {{32{1'b0}}, R2};              // zero-extend R2 to 64
-
-    mux2  #(64) muxA(a_s,a_u,(Funct3 == 3'b011),Aout);
-    mux2  #(64) muxB(b_s,b_u,(Funct3[1] == 1),Bout);
-
-    // mux2 #(64) RegPmux(prodM, (prod & {64{~FlushM}}), noStallM, Qprod);
-    // flopr #(64) RegPreg(.clk, .reset, .D(Qprod), .Q(prodM));
-
-    mux2 #(64) Amux(AoutM, (Aout & {64{~FlushM}}), noStallM, QAout);
-    flopr #(64) Areg(.clk, .reset, .D(QAout), .Q(AoutM));
-
-    mux2 #(64) Bmux(BoutM, (Bout & {64{~FlushM}}), noStallM, QBout);
-    flopr #(64) Breg(.clk, .reset, .D(QBout), .Q(BoutM));
-
-    assign prod = AoutM * BoutM;
-
-    // Memory Stage
     always_comb begin
+    unique case (Funct3)
+        3'b001: begin a_sign = R1[31]; b_sign = R2[31]; end // mulh
+        3'b010: begin a_sign = R1[31]; b_sign = 1'b0;   end // mulhsu
+        3'b011: begin a_sign = 1'b0;   b_sign = 1'b0;   end // mulhu
+        default:begin a_sign = R1[31]; b_sign = R2[31]; end // mul
+    endcase
+    end
+    assign a33 = {a_sign, R1};
+    assign b33 = {b_sign, R2};
 
-        case (Funct3M)
-            3'b000: MulResult = prod[31:0];   // mul
-            default: MulResult = prod[63:32];  // mulh
-        endcase
+    mux2 #(33) Amux(a33M, (a33 & {33{~FlushM}}), noStallM, QAout);
+    flopr #(33) Areg(.clk, .reset, .D(QAout), .Q(a33M));
+
+    mux2 #(33) Bmux(b33M, (b33 & {33{~FlushM}}), noStallM, QBout);
+    flopr #(33) Breg(.clk, .reset, .D(QBout), .Q(b33M));
+
+    assign prod66 = $signed(a33M) * $signed(b33M);
+    always_comb begin
+        MulResult = (Funct3M == 3'b000) ? prod66[31:0] : prod66[63:32];
     end
 endmodule
