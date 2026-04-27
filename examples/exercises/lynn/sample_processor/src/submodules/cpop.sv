@@ -3,7 +3,7 @@ module cpop(
     output logic[31:0] OnesCount
     );
 
-    logic [4:0] sum;
+    logic [5:0] sum;
 
     always_comb begin
         sum = '0;
@@ -12,6 +12,6 @@ module cpop(
         end
     end
 
-    assign OnesCount = {27'b0, sum};
+    assign OnesCount = {26'b0, sum};
 
 endmodule

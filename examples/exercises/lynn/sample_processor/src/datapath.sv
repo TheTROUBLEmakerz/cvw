@@ -27,7 +27,7 @@ module datapath(
 
     mux3 #(32) top3mux(Rd1E, ResultW, extout, ForwardAE, FSrcAE);
     mux3 #(32) bot3mux(Rd2E, ResultW, extout, ForwardBE, FSrcBE);
-    cmp cmp(.R1(FSrcAE), .R2(FSrcBE), .unsignedCmp(Funct3E[1] | (IsZbbE & Funct3E[0])), .Eq, .Lt);
+    cmp cmp(.R1(FSrcAE), .R2(FSrcBE), .unsignedCmp((Funct3E[1] & ~IsZbbE) | (IsZbbE & Funct3E[0])), .Eq, .Lt);
     // logic for selecting min / max
     mux2 #(32) minmaxmux(FSrcBE, FSrcAE, Funct3E[1]^Lt, minmaxout);
     mux3 #(32) shaddmux({FSrcAE[28:0], 3'b000}, {FSrcAE[29:0], 2'b00}, {FSrcAE[30:0], 1'b0}, ~Funct3E[2:1], shaddout);
@@ -48,13 +48,13 @@ module datapath(
     reversal #(1) revC(FSrcAE, revCZ); // reverse for clz instr
     reversal #(8) revB(FSrcAE, revB8); // rev8 instr
 
-    assign CZ = Rd2E[0] ? FSrcAE : revCZ;
+    assign CZ = ImmExtE[0] ? FSrcAE : revCZ;
 
     // count bits
     priorityencoder countzero(CZ, ZeroCount);
     cpop cpop(FSrcAE, OnesCount);
 
-    mux2 #(32) countmux(ZeroCount, OnesCount, Rd2E[1], Count);
+    mux2 #(32) countmux(ZeroCount, OnesCount, ImmExtE[1], Count);
 
     // extenders
     assign zexth = {16'b0, FSrcAE[15:0]};
@@ -62,12 +62,12 @@ module datapath(
     assign sexth = {{16{FSrcAE[15]}}, FSrcAE[15:0]};
 
     // combine bytes
-    assign orcb = {{4{|FSrcAE[31:28]}}, {4{|FSrcAE[27:24]}},{4{|FSrcAE[23:20]}},{4{|FSrcAE[19:16]}},{4{|FSrcAE[15:12]}},{4{|FSrcAE[11:8]}},{4{|FSrcAE[7:4]}}, {4{|FSrcAE[3:0]}}};
+    assign orcb = {{8{|FSrcAE[31:24]}}, {8{|FSrcAE[23:16]}}, {8{|FSrcAE[15:8]}}, {8{|FSrcAE[7:0]}}};
 
-    mux4 #(32) extdmux(zexth, sextb, orcb, sexth, {Rd2E[0],Rd2E[1] ^ Rd2E[2]}, extdbmu);
+    mux4 #(32) extdmux(zexth, sextb, orcb, sexth, {ImmExtE[0],ImmExtE[1] ^ ImmExtE[2]}, extdbmu);
 
-    assign countsel = (Funct3E == 3'b001) & ~Rd2E[2];
-    mux3 #(32) ibmumux(extdbmu, Count, revB8, {Rd2E[3], countsel}, izbbout);
+    assign countsel = (Funct3E == 3'b001) & ~ImmExtE[2];
+    mux3 #(32) ibmumux(extdbmu, Count, revB8, {ImmExtE[3], countsel}, izbbout);
 
     // final big mux
     mux4 #(32) ieuresultmux(ALUResultE, AltResultE, minmaxout, izbbout, ALUResultSrcE, IEUResultE); // TODO - add minmaxout

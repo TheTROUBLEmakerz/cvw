@@ -33,7 +33,7 @@ module alu(
     assign LT       = Neg ^ Overflow;
     assign SLT      = {31'b0, LT};
 
-    assign ALUFunct = (Funct3 & {3{ALUOp}}) ^ {1'b0, ~Funct7E[4] & IsZbbE & ALUOp & ~Funct3[0], 1'b0};
+    assign ALUFunct = (Funct3 & {3{ALUOp}}); // ^ {1'b0, ~Funct7E[4] & IsZbbE & ALUOp & ~Funct3[0], 1'b0};
     //assign SrcA64 = {32'b0, SrcA};
     always_comb begin
         case (ALUFunct)
